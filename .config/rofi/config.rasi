@@ -1,0 +1,63 @@
+configuration {
+	modi: "window,run,drun,emoji";
+	font: "JetBrainsMono Nerd Font 20";
+	show-icons: true;
+/*	icon-theme: ;*/
+	drun-display-format: "{name}";
+
+	display-drun: "🔎";
+	display-emoji: "🔎";
+}
+@theme "~/.cache/wal/colors-rofi-dark.rasi"
+
+
+#element.selected.normal {
+    background-color: @selected-normal-background;
+    text-color: @normal-background;
+} 
+
+/* Theme Modifications */
+
+/* 輸入欄位設定 */
+entry {
+    placeholder: "";
+}
+
+/* 顯示五列1行 */
+listview {
+	lines: 5;
+	columns: 2;
+}
+
+element {
+    spacing: 5px;
+    margin: 0 0 15px 0;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+element-icon {
+    size: 40px;
+    margin: 0 10px 0 0;
+}
+
+element-text {
+    vertical-align: 0.5;
+}
+
+inputbar {
+    border: 1px;
+    border-color: @alternate-active-foreground;
+    border-radius: 20px;
+    padding: 10px;
+    margin: 0 0 30px 0;
+}
+
+window {
+    border: 1px;
+    border-radius: 10px;
+    padding: 1em 1em 1em 1em;
+    border-color: @alternate-active-foreground;
+}
+
+
