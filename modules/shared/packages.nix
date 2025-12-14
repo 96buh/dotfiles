@@ -19,8 +19,6 @@ with pkgs;
     # fswatch
     # choose-gui
     # Python
-    python312
-    python312Packages.pip
     uv
     # Nodejs
     nodejs
@@ -37,6 +35,7 @@ with pkgs;
     yt-dlp # download youtube videos 
 
     pandoc
-    typst
+    man
+    # typst 
 ]
 

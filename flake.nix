@@ -4,18 +4,22 @@
     inputs = {
         nixpkgs = { 
             url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-          };
+        };
         nix-darwin = {
             url = "github:LnL7/nix-darwin";
             inputs.nixpkgs.follows = "nixpkgs";
         };
         nix-homebrew = {
             url = "github:zhaofengli-wip/nix-homebrew";
-          };
-          home-manager = {
+        };
+        home-manager = {
             url = "github:nix-community/home-manager";
             inputs.nixpkgs.follows = "nixpkgs";
-          };
+        };
+        typst = {
+            url = "github:typst/typst";
+            inputs.nixpkgs.follows = "nixpkgs";
+        };
     };
   
     outputs = inputs@{ self, nix-darwin, nixpkgs, nix-homebrew, home-manager, ... }:
@@ -46,6 +50,13 @@
           configuration
           ./host/darwin
           home-manager.darwinModules.home-manager
+          { 
+              nixpkgs.overlays = [
+                (final: prev: {
+                  typst = inputs.typst.packages.${final.system}.typst;
+                })
+              ];
+          }
           {
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;

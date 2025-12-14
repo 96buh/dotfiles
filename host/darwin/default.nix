@@ -35,6 +35,7 @@
     };
     trackpad = {
       TrackpadThreeFingerDrag = true; # three finger drag
+      TrackpadThreeFingerTapGesture = 2; # 2 to trigger Look up & data detectors.
     };
     NSGlobalDomain = {
         AppleInterfaceStyle = "Dark";

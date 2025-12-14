@@ -48,6 +48,10 @@ automatically-unhide-macos-hidden-apps = false
     alt-9 = 'workspace 9'
     alt-o = 'workspace O' # zotero
     alt-f = 'workspace F' # finder
+    alt-p = 'workspace P' # preview
+    alt-n = 'workspace N' # NordVPN
+    alt-a = 'workspace A' # Anki
+    alt-s = 'workspace S' # Keynote
 
     alt-shift-1 = 'move-node-to-workspace 1'
     alt-shift-2 = 'move-node-to-workspace 2'
@@ -60,6 +64,10 @@ automatically-unhide-macos-hidden-apps = false
     alt-shift-9 = 'move-node-to-workspace 9'
     alt-shift-o = 'move-node-to-workspace O'
     alt-shift-f = 'move-node-to-workspace F'
+    alt-shift-p = 'move-node-to-workspace P'
+    alt-shift-n = 'move-node-to-workspace N'
+    alt-shift-a = 'move-node-to-workspace A'
+    alt-shift-s = 'move-node-to-workspace S'
 
     alt-tab = 'workspace-back-and-forth'
     alt-shift-tab = 'move-workspace-to-monitor --wrap-around next'
@@ -93,3 +101,24 @@ run = 'move-node-to-workspace F'   # finder
 [[on-window-detected]]
 if.app-id = 'org.zotero.zotero'
 run = 'move-node-to-workspace O'   # zotero
+
+[[on-window-detected]]
+if.app-id = 'com.apple.Preview'
+run = 'move-node-to-workspace P'   # Preview(pdf reader)
+
+[[on-window-detected]]
+if.app-id = 'com.nordvpn.macos'
+run = 'move-node-to-workspace N'   # NordVPN
+
+[[on-window-detected]]
+if.app-id = 'net.ankiweb.launcher'
+run = 'move-node-to-workspace A'   # Anki
+
+[[on-window-detected]]
+if.app-id = 'com.apple.iWork.Keynote'
+run = 'move-node-to-workspace S'   # Keynote
+
+
+
+[workspace-to-monitor-force-assignment]
+    10 = 'secondary'

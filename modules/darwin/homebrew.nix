@@ -13,7 +13,10 @@
       "ripgrep"
       "cocoapods"
       "cmake"
-      # "freetype"
+      "codex"
+      "google-benchmark"
+      "mingw-w64"
+      "bear"
     ];
     # GUI Apps
     casks = [
@@ -35,8 +38,10 @@
       "skim"               # pdf reader
       "nikitabobko/tap/aerospace" # window manager
       "prismlauncher"      # minecraft launcher
+      "mathpix-snipping-tool"
       
       "android-studio"
+      "easydict"
       "intellij-idea"
       "pycharm"
       "latexit"

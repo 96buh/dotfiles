@@ -49,10 +49,12 @@ in {
   home.file.".config/ghostty/config".text = ''
     font-size = 20
     macos-option-as-alt = true
-    theme = dark:GruvboxDark,light:GruvboxLight
+    theme = dark:Gruvbox Dark,light:Gruvbox Light
     window-padding-x = 10
     window-padding-y = 5
     macos-titlebar-style = "hidden"
+    font-family = "CommitMono"
+    font-family = "Sarasa Term TC"
   '';
 
   # encode the file content in nix configuration file directly
