@@ -15,10 +15,6 @@ with pkgs;
 
     # Github
     gh
-
-    # fswatch
-    # choose-gui
-    # Python
     uv
     # Nodejs
     nodejs
@@ -36,6 +32,5 @@ with pkgs;
 
     pandoc
     man
-    # typst 
 ]
 

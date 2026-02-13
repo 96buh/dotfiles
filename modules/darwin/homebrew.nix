@@ -14,9 +14,6 @@
       "cocoapods"
       "cmake"
       "codex"
-      "google-benchmark"
-      "mingw-w64"
-      "bear"
     ];
     # GUI Apps
     casks = [
@@ -30,20 +27,15 @@
       "zen"
       "discord"
       "spotify"
-      # inkscape shortcut
-      # "inkscape"
-      # "hammerspoon"
       "karabiner-elements" # keyboard remap
       "jordanbaird-ice"    # menu bar
       "skim"               # pdf reader
       "nikitabobko/tap/aerospace" # window manager
-      "prismlauncher"      # minecraft launcher
-      "mathpix-snipping-tool"
       
-      "android-studio"
       "easydict"
-      "intellij-idea"
-      "pycharm"
+      # "android-studio"
+      # "intellij-idea"
+      # "pycharm"
       "latexit"
       "steam"
     ];
