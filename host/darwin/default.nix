@@ -8,7 +8,7 @@
 
   environment.systemPackages = import ../../modules/shared/packages.nix { pkgs = pkgs; };
 
-  environment.darwinConfig = "$HOME/.dotfiles/configuration.nix";
+  environment.darwinConfig = "$HOME/.dotfiles/flake.nix";
 
   system.stateVersion = 6;
   system.defaults = {
@@ -24,7 +24,7 @@
       show-recents = false;
       orientation = "bottom";
       # Hot corner action
-      wvous-bl-corner = 4; # botoom left: Desktop
+      wvous-bl-corner = 4; # bottom left: Desktop
     };
     finder = {
       AppleShowAllExtensions = true;
@@ -39,6 +39,7 @@
     NSGlobalDomain = {
         AppleInterfaceStyle = "Dark";
         "com.apple.mouse.tapBehavior" = 1; # enable tap to click
+        "com.apple.swipescrolldirection" = false;
     };
 
     controlcenter.BatteryShowPercentage = true; # show battery percentage
@@ -65,4 +66,3 @@
     };
   };
 }
-

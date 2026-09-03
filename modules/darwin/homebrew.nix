@@ -8,12 +8,20 @@
     # };
     brews = [
       "mas" # search app ID
-      "perl"
-      "cpanm"
       "ripgrep"
-      "cocoapods"
+      "perl"
+      "cpanminus"
+      "typst"
       "cmake"
-      "codex"
+      "git-lfs"
+      "ffmpeg"
+      "mole"
+      "tree-sitter-cli"
+      "poppler"
+      "imagemagick"
+      "cairo"
+      "pkgconf"
+      "deno"
     ];
     # GUI Apps
     casks = [
@@ -22,28 +30,36 @@
       "visual-studio-code"
       "raycast"
       "anki"
-
       "ghostty"
       "zen"
       "discord"
       "spotify"
       "karabiner-elements" # keyboard remap
-      "jordanbaird-ice"    # menu bar
+      "thaw"               # menu bar
       "skim"               # pdf reader
+      "sioyek"             # pdf reader
       "nikitabobko/tap/aerospace" # window manager
-      
       "easydict"
+      "mactex-no-gui"
+      "bitwarden" # password manager
+      "obs"
+      "codex"
+      "copilot-cli"
+      "figma"
       # "android-studio"
       # "intellij-idea"
       # "pycharm"
-      "latexit"
-      "steam"
+      # "latexit"
+      # "steam"
     ];
     onActivation = {
-      autoUpdate = true;
-      upgrade = true;
+      autoUpdate = false;
+      upgrade = false;
       cleanup = "zap";
+
+      extraEnv = {
+        HOMEBREW_NO_ENV_HINTS = "1";
+      };
     };
   };
 }
-

@@ -2,9 +2,10 @@
 
 {
     enable = true;
-    userName = "Homer";
-    userEmail = "j29823678@gmail.com";
-    extraConfig = {
+    signing.format = null;
+    settings = {
+        user.email = "j29823678@gmail.com";
+        user.name = "Homer";
         core.editor = "nvim";
     };
 }

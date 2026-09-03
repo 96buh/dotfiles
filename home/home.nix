@@ -1,7 +1,7 @@
 { config, pkgs, lib, ... }:
 
 let 
-  isDarwin = pkgs.stdenv.isDarwin;
+  isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
 in {
   home.username = "homer";
   home.homeDirectory = lib.mkForce(
@@ -14,16 +14,21 @@ in {
   home.file.".local/bin/tmux-sessionizer" = {
     source = ./scripts/tmux-sessionizer;
     executable = true;
+    force = true;
   };
 
   home.file.".config/tmux-sessionizer" = {
     source = ./.config/tmux-sessionizer;
     recursive = true;
+    force = true;
   };
 
   # link the configuration file in current directory to the specified location in home directory
   # home.file.".config/i3/wallpaper.jpg".source = ./wallpaper.jpg;
-  home.file.".zshrc".source = ./.zshrc;
+  home.file.".zshrc" = {
+    source = ./.zshrc;
+    force = true;
+  };
 
   # link all files in `./scripts` to `~/.config/i3/scripts`
   # home.file.".config/i3/scripts" = {
@@ -34,28 +39,34 @@ in {
   home.file.".config/ohmyposh" = {
     source = ./.config/ohmyposh;
     recursive = true;
+    force = true;
   };
 
   home.file.".config/karabiner" = {
     source = ./.config/karabiner;
     recursive = true;
+    force = true;
   };
 
   home.file.".config/aerospace" = {
     source = ./.config/aerospace;
     recursive = true;
+    force = true;
   };
 
-  home.file.".config/ghostty/config".text = ''
-    font-size = 20
-    macos-option-as-alt = true
-    theme = dark:Gruvbox Dark,light:Gruvbox Light
-    window-padding-x = 10
-    window-padding-y = 5
-    macos-titlebar-style = "hidden"
-    font-family = "CommitMono"
-    font-family = "Sarasa Term TC"
-  '';
+  home.file.".config/ghostty/config" = {
+    force = true;
+    text = ''
+      font-size = 20
+      macos-option-as-alt = true
+      theme = dark:Gruvbox Dark,light:Gruvbox Light
+      window-padding-x = 10
+      window-padding-y = 5
+      macos-titlebar-style = "hidden"
+      font-family = "JetBrainsMono Nerd Font"
+      font-family = "Sarasa Term TC"
+    '';
+  };
 
   # encode the file content in nix configuration file directly
   # home.file.".xxx".text = ''

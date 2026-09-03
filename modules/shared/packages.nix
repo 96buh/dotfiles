@@ -12,25 +12,29 @@ with pkgs;
     fastfetch
     eza
     bat
+    btop
 
     # Github
     gh
     uv
     # Nodejs
     nodejs
-    nodePackages.eas-cli
+    pnpm
     supabase-cli # interact with supabase
 
     go
     lua
+    rustup
     # file manager
     yazi
     # java
-    jdk17
+    jdk21
     ruby
     yt-dlp # download youtube videos 
 
     pandoc
     man
+    tldr
+    exiftool # Tool to read, write and edit EXIF meta information
 ]
 

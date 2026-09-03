@@ -1,18 +1,38 @@
 # dotfiles
 
-**WIP**
+Declarative macOS and NixOS configuration built with Nix flakes, nix-darwin,
+Home Manager, and nix-homebrew.
 
-<!-- This repository contains my macOS system configuration using [Nix](https://nixos.org), [nix-darwin](https://github.com/LnL7/nix-darwin). -->
+## Apply the configuration
 
-<!-- ## Usage -->
-<!---->
-<!-- 1. Install [Nix](https://nixos.org) package manager. -->
-<!-- 2. Clone this repository. -->
-<!-- 3. (First time only) Install nix-darwin and apply configuration: -->
-<!--    ```bash -->
-<!--    nix run nix-darwin --extra-experimental-features 'nix-command flakes' -- switch --flake ~/.dotfiles#macbookpro -->
-<!--    ``` -->
-<!-- 4. (Afterwards) Rebuild configuration: -->
-<!--    ```bash -->
-<!--    sudo darwin-rebuild switch --flake ~/.dotfiles#macbookpro -->
-<!--    ``` -->
+Preview the macOS configuration before switching:
+
+```sh
+darwin-rebuild build --flake ~/.dotfiles#macbookpro
+```
+
+Apply it after reviewing the build:
+
+```sh
+sudo darwin-rebuild switch --flake ~/.dotfiles#macbookpro
+```
+
+On the NixOS host:
+
+```sh
+sudo nixos-rebuild switch --flake ~/.dotfiles#nixos
+```
+
+## Maintenance
+
+Update all locked inputs, then validate both configurations:
+
+```sh
+nix flake update
+nix flake check --no-build
+nix eval .#darwinConfigurations.macbookpro.config.system.build.toplevel.drvPath
+nix eval .#nixosConfigurations.nixos.config.system.build.toplevel.drvPath
+```
+
+Home Manager-managed files use `force = true`, so the repository version is
+applied directly without accumulating local backup files.

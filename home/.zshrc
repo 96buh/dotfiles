@@ -32,7 +32,8 @@ if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
 fi
 
 # Keybindings
-bindkey -e
+export KEYTIMEOUT=1
+bindkey -v
 bindkey '^p' history-search-backward
 bindkey '^n' history-search-forward
 bindkey '^[w' kill-region
@@ -78,6 +79,7 @@ alias ls='eza --group-directories-first --icons=always --no-user'
 # options: --no-filesize, --no-time, --no-permissions
 alias lsa='eza --group-directories-first --icons=always -a --long'
 alias vim='nvim'
+alias vi='nvim'
 alias c='clear'
 alias tree='eza -Ta --git-ignore --group-directories-first --level=3'
 
@@ -105,5 +107,7 @@ fi
 
 export LANG=en_US.UTF-8
 export PATH=/Library/TeX/texbin:$PATH
+export MANPAGER="less -R --use-color -Dd+r -Du+b"
+export MANROFFOPT="-c"
 export ANDROID_HOME=$HOME/Library/Android/sdk && export PATH=$PATH:$ANDROID_HOME/emulator && export PATH=$PATH:$ANDROID_HOME/platform-tools
 
