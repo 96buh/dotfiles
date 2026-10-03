@@ -3,6 +3,10 @@ export PATH="$HOME/.local/bin:$PATH"
 if [[ -f "/opt/homebrew/bin/brew" ]]; then
   # If you're using macOS, you'll want this enabled
   eval "$(/opt/homebrew/bin/brew shellenv)"
+  # Homebrew LLVM is keg-only, so expose its tools explicitly.
+  if [[ -d "$HOMEBREW_PREFIX/opt/llvm@17/bin" ]]; then
+    export PATH="$HOMEBREW_PREFIX/opt/llvm@17/bin:$PATH"
+  fi
 fi
 
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
@@ -107,7 +111,7 @@ fi
 
 export LANG=en_US.UTF-8
 export PATH=/Library/TeX/texbin:$PATH
+export PATH="$HOME/.cargo/bin:$PATH"
+export PATH=$PATH:$(go env GOPATH)/bin
 export MANPAGER="less -R --use-color -Dd+r -Du+b"
 export MANROFFOPT="-c"
-export ANDROID_HOME=$HOME/Library/Android/sdk && export PATH=$PATH:$ANDROID_HOME/emulator && export PATH=$PATH:$ANDROID_HOME/platform-tools
-

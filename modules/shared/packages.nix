@@ -34,7 +34,6 @@ with pkgs;
 
     pandoc
     man
-    tldr
     exiftool # Tool to read, write and edit EXIF meta information
 ]
 

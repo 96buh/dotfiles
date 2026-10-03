@@ -22,6 +22,10 @@
       "cairo"
       "pkgconf"
       "deno"
+      "llvm@17"
+      "gdown"
+      "unar"
+      "tlrc"
     ];
     # GUI Apps
     casks = [

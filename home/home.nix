@@ -54,6 +54,12 @@ in {
     force = true;
   };
 
+  home.file.".config/yazi" = {
+    source = ./.config/yazi;
+    recursive = true;
+    force = true;
+  };
+
   home.file.".config/ghostty/config" = {
     force = true;
     text = ''
