@@ -1,0 +1,10 @@
+font-size = 20
+macos-option-as-alt = true
+# Command-P opens the PDF picker in zsh and tmux.
+keybind = super+p=text:\x1b[34~
+theme = dark:Gruvbox Dark,light:Gruvbox Light
+window-padding-x = 10
+window-padding-y = 5
+macos-titlebar-style = "hidden"
+font-family = "JetBrainsMono Nerd Font"
+font-family = "Sarasa Term TC"

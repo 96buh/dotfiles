@@ -91,6 +91,18 @@ alias tree='eza -Ta --git-ignore --group-directories-first --level=3'
 eval "$(fzf --zsh)"
 eval "$(zoxide init --cmd cd zsh)"
 
+# Ghostty's Command-p sequence is normalized by tmux; accept both forms.
+function pdf-opener-widget() {
+  zle -I
+  command pdf-opener
+  zle reset-prompt
+}
+zle -N pdf-opener-widget
+bindkey -M viins '^[[34~' pdf-opener-widget
+bindkey -M vicmd '^[[34~' pdf-opener-widget
+bindkey -M viins '^[[21;2~' pdf-opener-widget
+bindkey -M vicmd '^[[21;2~' pdf-opener-widget
+
 function y() {
 	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
 	yazi "$@" --cwd-file="$tmp"

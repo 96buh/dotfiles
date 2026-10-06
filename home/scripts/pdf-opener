@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+# Override search roots in ~/.config/pdf-opener/config:
+# PDF_SEARCH_PATHS=("$HOME/Documents" "$HOME/Downloads")
+config_file="${XDG_CONFIG_HOME:-$HOME/.config}/pdf-opener/config"
+[[ ! -f "$config_file" ]] || source "$config_file"
+
+for dependency in fd fzf; do
+    if ! command -v "$dependency" >/dev/null 2>&1; then
+        printf 'pdf-opener: %s is required.\n' "$dependency" >&2
+        exit 1
+    fi
+done
+
+if [[ $# -gt 0 ]]; then
+    PDF_SEARCH_PATHS=("$@")
+elif [[ ${#PDF_SEARCH_PATHS[@]} -eq 0 ]]; then
+    PDF_SEARCH_PATHS=("$HOME")
+    # OneDrive lives under Library on macOS; ~/OneDrive is only a symlink.
+    if [[ -d "$HOME/Library/CloudStorage/OneDrive-Personal" ]]; then
+        PDF_SEARCH_PATHS+=("$HOME/Library/CloudStorage/OneDrive-Personal")
+    fi
+fi
+
+# NUL delimiters preserve spaces, Unicode, and newlines in filenames.
+selected=""
+IFS= read -r -d '' selected < <(
+    fd --type f --extension pdf --ignore-case --absolute-path --hidden --no-ignore \
+        --exclude .git --exclude .cache --exclude Library --print0 \
+        . "${PDF_SEARCH_PATHS[@]}" |
+        fzf --read0 --print0 --no-multi --prompt='PDF > ' \
+            --header='Enter: open PDF | Esc: cancel'
+)
+[[ -n "$selected" ]] || exit 0
+
+case "$(uname -s)" in
+    Darwin) open "$selected" ;;
+    *) xdg-open "$selected" ;;
+esac

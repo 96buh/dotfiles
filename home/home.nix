@@ -17,6 +17,12 @@ in {
     force = true;
   };
 
+  home.file.".local/bin/pdf-opener" = {
+    source = ./scripts/pdf-opener;
+    executable = true;
+    force = true;
+  };
+
   home.file.".config/tmux-sessionizer" = {
     source = ./.config/tmux-sessionizer;
     recursive = true;
@@ -60,18 +66,10 @@ in {
     force = true;
   };
 
-  home.file.".config/ghostty/config" = {
+  home.file.".config/ghostty" = {
+    source = ./.config/ghostty;
+    recursive = true;
     force = true;
-    text = ''
-      font-size = 20
-      macos-option-as-alt = true
-      theme = dark:Gruvbox Dark,light:Gruvbox Light
-      window-padding-x = 10
-      window-padding-y = 5
-      macos-titlebar-style = "hidden"
-      font-family = "JetBrainsMono Nerd Font"
-      font-family = "Sarasa Term TC"
-    '';
   };
 
   # encode the file content in nix configuration file directly
