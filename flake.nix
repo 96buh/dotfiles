@@ -1,5 +1,5 @@
 {
-  description = "Homer's macOS and NixOS configurations";
+  description = "Homer's macOS configuration";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
@@ -25,7 +25,6 @@
   outputs = inputs@{
     self,
     nix-darwin,
-    nixpkgs,
     nix-homebrew,
     home-manager,
     neovim-nightly-overlay,
@@ -33,14 +32,13 @@
   }:
     let
       darwinSystem = "aarch64-darwin";
-      linuxSystem = "x86_64-linux";
       neovimOverlay = neovim-nightly-overlay.overlays.default;
 
       homeManagerConfig = {
         home-manager = {
           useGlobalPkgs = true;
           useUserPackages = true;
-          users.homer = import ./home/home.nix;
+          users.homer = import ./macos/home.nix;
         };
       };
     in
@@ -48,13 +46,10 @@
       darwinConfigurations.macbookpro = nix-darwin.lib.darwinSystem {
         system = darwinSystem;
         modules = [
-          (import ./configuration.nix {
-            inherit self;
-            targetSystem = darwinSystem;
-          })
-          ./host/darwin
+          ./macos
           home-manager.darwinModules.home-manager
           {
+            nixpkgs.hostPlatform = darwinSystem;
             nixpkgs.overlays = [ neovimOverlay ];
           }
           homeManagerConfig
@@ -68,20 +63,7 @@
             };
           }
         ];
-        specialArgs = { inherit inputs; };
-      };
-
-      nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-        system = linuxSystem;
-        modules = [
-          ./host/nixos/hardware-configuration.nix
-          ./host/nixos/configuration.nix
-          {
-            nixpkgs.overlays = [ neovimOverlay ];
-          }
-          home-manager.nixosModules.home-manager
-          homeManagerConfig
-        ];
+        specialArgs = { inherit inputs self; };
       };
     };
 }

@@ -1,14 +1,18 @@
-{ config, pkgs, ... }:
+{ self, pkgs, ... }:
 {
 
   imports = [
-    ../../modules/shared/fonts.nix
-    ../../modules/darwin/homebrew.nix
+    ./fonts.nix
+    ./homebrew.nix
   ];
 
-  environment.systemPackages = import ../../modules/shared/packages.nix { pkgs = pkgs; };
+  users.users.homer.home = "/Users/homer";
+  system.primaryUser = "homer";
+  nixpkgs.config.allowUnfree = true;
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  system.configurationRevision = self.rev or self.dirtyRev or null;
 
-  environment.darwinConfig = "$HOME/.dotfiles/flake.nix";
+  environment.systemPackages = import ./packages.nix { inherit pkgs; };
 
   system.stateVersion = 6;
   system.defaults = {
@@ -59,10 +63,10 @@
   # app settings
   system.defaults.CustomUserPreferences = {
     "com.microsoft.VSCode" = {
-      ApplePressAndHoldEnabled = false; 
+      ApplePressAndHoldEnabled = false;
     };
     "com.jetbrains.intellij" = {
-      ApplePressAndHoldEnabled = false; 
+      ApplePressAndHoldEnabled = false;
     };
   };
 }

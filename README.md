@@ -1,27 +1,50 @@
 # dotfiles
 
-Declarative macOS and NixOS configuration built with Nix flakes, nix-darwin,
-Home Manager, and nix-homebrew.
-
-## Apply the configuration
-
-Preview the macOS configuration before switching:
+Configure macOS and Linux from the repository root:
 
 ```sh
-darwin-rebuild build --flake ~/.dotfiles#macbookpro
+./setup check   # Check dependencies and shell syntax
+./setup plan    # macOS: build only; Linux: preview links
+./setup apply   # Apply to the current machine
 ```
 
-Apply it after reviewing the build:
+The platform is detected automatically. Run as your normal user; macOS apply
+invokes sudo when needed. No extra task runner is required.
 
-```sh
-sudo darwin-rebuild switch --flake ~/.dotfiles#macbookpro
+## Layout
+
+```text
+setup                 # One command entry point for both platforms
+flake.nix / flake.lock # Mac Nix entry point and pinned dependencies
+macos/                # Mac-only Nix: system, Home Manager, packages and fonts
+dotfiles/
+  common/             # Shared native dotfiles, mirroring $HOME
+  macos/              # Mac-only app settings: AeroSpace, Karabiner, Ghostty
+  linux/              # Linux-only app settings; currently reserved
+packages/cachyos/     # Reserved pacman / AUR manifests
+docs/                 # Supporting docs and agent plans/notes
 ```
 
-On the NixOS host:
+macOS requires an existing Nix / nix-darwin installation. `plan` builds without
+switching or replacing the repository's `result` link; `apply` runs nix-darwin
+switch. Both use a `path:` flake, so newly moved files are included before Git
+staging. The Mac profile remains specific to `homer` / `macbookpro`.
 
-```sh
-sudo nixos-rebuild switch --flake ~/.dotfiles#nixos
-```
+Linux requires GNU Stow, Git, zsh and tmux. `apply` previews conflicts first,
+then links `common` and `linux` into your home directory. Existing files are
+never adopted or overwritten. Move conflicting settings to a backup outside
+this repository before retrying. Linux uses no Nix; system packages, desktop
+settings, shell plugins and tmux plugins are installed separately. Use the
+standard `~/.config` location.
+
+Setup does not change your login shell, start/reload tmux, or install Nix,
+Homebrew, pacman/AUR packages, or plugins. The shell's existing zinit bootstrap
+still downloads zinit/plugins on first interactive startup.
+
+See [Linux setup](docs/linux.md), [tmux plugins](docs/tmux.md),
+[CachyOS package plans](docs/cachyos-packages.md), and the
+[integration roadmap](docs/cachyos-integration-plan.md).
+Only this README belongs at the root; keep other Markdown in `docs/`.
 
 ## PDF picker
 
@@ -47,14 +70,12 @@ as described above to install the script and shortcuts.
 
 ## Maintenance
 
-Update all locked inputs, then validate both configurations:
+Update the Mac lock file explicitly, then preview the configuration:
 
 ```sh
 nix flake update
-nix flake check --no-build
-nix eval .#darwinConfigurations.macbookpro.config.system.build.toplevel.drvPath
-nix eval .#nixosConfigurations.nixos.config.system.build.toplevel.drvPath
+./setup plan
 ```
 
-Home Manager-managed files use `force = true`, so the repository version is
-applied directly without accumulating local backup files.
+Home Manager-managed files use `force = true`. Linux Stow deployment refuses
+conflicts instead of replacing existing settings.

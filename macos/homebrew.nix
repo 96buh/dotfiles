@@ -2,10 +2,6 @@
 {
   homebrew = {
     enable = true;
-    # App Store Apps, use `mas search "App Name"` to find app ID
-    # masApps = {
-    #     "Microsoft Word" = 462054704;
-    # };
     brews = [
       "mas" # search app ID
       "ripgrep"
@@ -38,23 +34,16 @@
       "zen"
       "discord"
       "spotify"
-      "karabiner-elements" # keyboard remap
-      "thaw"               # menu bar
-      "skim"               # pdf reader
-      "sioyek"             # pdf reader
-      "nikitabobko/tap/aerospace" # window manager
+      "karabiner-elements"
+      "thaw"
+      "skim"
+      "nikitabobko/tap/aerospace"
       "easydict"
       "mactex-no-gui"
-      "bitwarden" # password manager
+      "bitwarden"
       "obs"
       "codex"
-      "copilot-cli"
       "figma"
-      # "android-studio"
-      # "intellij-idea"
-      # "pycharm"
-      # "latexit"
-      # "steam"
     ];
     onActivation = {
       autoUpdate = false;

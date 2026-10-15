@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_ROOT="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+
+usage() {
+    cat <<'EOF'
+Usage: ./setup <check|plan|apply>
+
+  check   Check dependencies and shell syntax; do not change settings.
+  plan    macOS: build without switching. Linux: preview Stow links.
+  apply   macOS: switch with nix-darwin. Linux: apply Stow links.
+
+The platform is detected automatically. Run as your normal user.
+Linux requires Git, zsh, tmux and GNU Stow; system packages are installed separately.
+EOF
+}
+
+fail() { printf 'setup: %s\n' "$*" >&2; exit 1; }
+need() { command -v "$1" >/dev/null 2>&1 || fail "Missing command: $1"; }
+
+action="${1:-help}"
+[[ $# -le 1 ]] || { usage >&2; exit 2; }
+case "$action" in
+    help|-h|--help) usage; exit 0 ;;
+    check|plan|apply) ;;
+    *) usage >&2; exit 2 ;;
+esac
+
+case "$(uname -s)" in
+    Darwin) platform=macos ;;
+    Linux) platform=linux ;;
+    *) fail "Unsupported platform: $(uname -s)" ;;
+esac
+[[ "$(id -u)" != 0 ]] || fail 'Run ./setup as your normal user; macOS apply will invoke sudo.'
+printf 'Platform: %s\nRepository: %s\n' "$platform" "$REPO_ROOT"
+
+if [[ "$action" == check ]]; then
+    missing=0
+    if [[ "$platform" == macos ]]; then
+        required=(nix darwin-rebuild zsh)
+    else
+        required=(stow git zsh tmux)
+    fi
+    for tool in "${required[@]}"; do
+        if command -v "$tool" >/dev/null 2>&1; then
+            printf 'OK: %s\n' "$tool"
+        else
+            printf 'Missing: %s\n' "$tool" >&2
+            missing=1
+        fi
+    done
+    bash -n "$REPO_ROOT/setup" "$REPO_ROOT/dotfiles/common/.local/bin/pdf-opener" \
+        "$REPO_ROOT/dotfiles/common/.local/bin/tmux-sessionizer"
+    if command -v zsh >/dev/null 2>&1; then
+        zsh -n "$REPO_ROOT/dotfiles/common/.zshrc"
+    fi
+    for tool in fzf fd eza bat zoxide oh-my-posh nvim yazi; do
+        command -v "$tool" >/dev/null 2>&1 || printf 'Optional tool missing: %s\n' "$tool"
+    done
+    exit "$missing"
+fi
+
+if [[ "$platform" == macos ]]; then
+    need nix
+    # path: includes newly moved files even before they have been staged in Git.
+    flake="path:$REPO_ROOT#macbookpro"
+    if [[ "$action" == plan ]]; then
+        exec nix build --no-link --no-write-lock-file \
+            "path:$REPO_ROOT#darwinConfigurations.macbookpro.config.system.build.toplevel"
+    fi
+    need darwin-rebuild
+    need sudo
+    exec sudo "$(command -v darwin-rebuild)" switch --flake "$flake"
+fi
+
+need stow
+need zsh
+need git
+need tmux
+zsh -n "$REPO_ROOT/dotfiles/common/.zshrc"
+[[ -z "${XDG_CONFIG_HOME:-}" || "$XDG_CONFIG_HOME" == "$HOME/.config" ]] || \
+    fail 'This layout uses ~/.config; custom XDG_CONFIG_HOME is not supported yet.'
+stow_args=(--dir="$REPO_ROOT/dotfiles" --target="$HOME" --no-folding --verbose)
+# Always check conflicts before applying. Existing files are never adopted or overwritten.
+stow "${stow_args[@]}" --simulate common linux
+if [[ "$action" == apply ]]; then
+    stow "${stow_args[@]}" common linux
+fi

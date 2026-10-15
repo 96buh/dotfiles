@@ -1,0 +1,6 @@
+[core]
+	editor = nvim
+
+[user]
+	email = j29823678@gmail.com
+	name = Homer

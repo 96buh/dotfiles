@@ -1,0 +1,127 @@
+config-version = 2
+
+start-at-login = true
+enable-normalization-flatten-containers = true
+enable-normalization-opposite-orientation-for-nested-containers = true
+accordion-padding = 0
+default-root-container-layout = 'tiles'
+default-root-container-orientation = 'auto'
+
+on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
+automatically-unhide-macos-hidden-apps = false
+
+# This config option is only available since 'config-version = 2'
+persistent-workspaces = ['ZEN', 'GHOSTTY', 'OBSIDIAN', 'CODE', 'DISCORD', 'SPOTIFY', 'FINDER', 'PREVIEW', 'ZOTERO', 'ANKI', 'VPN', 'MAIL']
+
+[key-mapping]
+    preset = 'qwerty'
+
+[gaps]
+    inner.horizontal = 5
+    inner.vertical =   5
+    outer.left =       0
+    outer.bottom =     0
+    outer.top =        0
+    outer.right =      0
+
+[mode.main.binding]
+    alt-slash = 'layout tiles horizontal vertical'
+    alt-comma = 'layout accordion horizontal vertical'
+    alt-space = 'layout floating tiling'
+
+    alt-minus = 'resize smart -50'
+    alt-equal = 'resize smart +50'
+
+    alt-h = 'focus left'
+    alt-j = 'focus down'
+    alt-k = 'focus up'
+    alt-l = 'focus right'
+    alt-shift-h = 'move left'
+    alt-shift-j = 'move down'
+    alt-shift-k = 'move up'
+    alt-shift-l = 'move right'
+
+    alt-1 = 'workspace ZEN'
+    alt-2 = 'workspace GHOSTTY'
+    alt-3 = 'workspace OBSIDIAN'
+    alt-4 = 'workspace CODE'
+    alt-5 = 'workspace DISCORD'
+    alt-6 = 'workspace SPOTIFY'
+    alt-7 = 'workspace 7'
+    alt-8 = 'workspace 8'
+    alt-9 = 'workspace 9'
+    alt-o = 'workspace ZOTERO'
+    alt-f = 'workspace FINDER'
+    alt-p = 'workspace PREVIEW'
+    alt-n = 'workspace VPN'
+    alt-a = 'workspace ANKI'
+    alt-m = 'workspace MAIL'
+
+    alt-shift-1 = 'move-node-to-workspace ZEN'
+    alt-shift-2 = 'move-node-to-workspace GHOSTTY'
+    alt-shift-3 = 'move-node-to-workspace OBSIDIAN'
+    alt-shift-4 = 'move-node-to-workspace CODE'
+    alt-shift-5 = 'move-node-to-workspace DISCORD'
+    alt-shift-6 = 'move-node-to-workspace SPOTIFY'
+    alt-shift-7 = 'move-node-to-workspace 7'
+    alt-shift-8 = 'move-node-to-workspace 8'
+    alt-shift-9 = 'move-node-to-workspace 9'
+    alt-shift-o = 'move-node-to-workspace ZOTERO'
+    alt-shift-f = 'move-node-to-workspace FINDER'
+    alt-shift-p = 'move-node-to-workspace PREVIEW'
+    alt-shift-n = 'move-node-to-workspace VPN'
+    alt-shift-a = 'move-node-to-workspace ANKI'
+    alt-shift-m = 'move-node-to-workspace MAIL'
+
+    alt-tab = 'workspace-back-and-forth'
+    alt-shift-tab = 'move-workspace-to-monitor --wrap-around next'
+
+    alt-shift-space = 'fullscreen --no-outer-gaps'
+
+[[on-window-detected]]
+if.app-id = 'app.zen-browser.zen'
+run = 'move-node-to-workspace ZEN'
+
+[[on-window-detected]]
+if.app-id = 'com.mitchellh.ghostty'
+run = 'move-node-to-workspace GHOSTTY'
+
+[[on-window-detected]]
+if.app-id = 'md.obsidian'
+run = 'move-node-to-workspace OBSIDIAN'
+
+[[on-window-detected]]
+if.app-id = 'com.microsoft.VSCode'
+run = 'move-node-to-workspace CODE'
+
+[[on-window-detected]]
+if.app-id = 'com.hnc.Discord'
+run = 'move-node-to-workspace DISCORD'
+
+[[on-window-detected]]
+if.app-id = 'com.spotify.client'
+run = 'move-node-to-workspace SPOTIFY'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.finder'
+run = 'move-node-to-workspace FINDER'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.mail'
+run = 'move-node-to-workspace MAIL'
+
+[[on-window-detected]]
+if.app-id = 'org.zotero.zotero'
+run = 'move-node-to-workspace ZOTERO'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.Preview'
+run = 'move-node-to-workspace PREVIEW'
+
+[[on-window-detected]]
+if.app-id = 'com.nordvpn.macos'
+run = 'move-node-to-workspace VPN'
+
+[[on-window-detected]]
+if.app-id = 'net.ankiweb.launcher'
+run = 'move-node-to-workspace ANKI'

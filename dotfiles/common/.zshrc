@@ -31,7 +31,7 @@ autoload -Uz compinit && compinit
 zinit cdreplay -q
 
 # oh-my-posh
-if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
+if [[ "$TERM_PROGRAM" != "Apple_Terminal" ]] && command -v oh-my-posh >/dev/null 2>&1; then
   eval "$(oh-my-posh init zsh --config $HOME/.config/ohmyposh/zen.toml)"
 fi
 
@@ -88,8 +88,8 @@ alias c='clear'
 alias tree='eza -Ta --git-ignore --group-directories-first --level=3'
 
 # Shell integrations
-eval "$(fzf --zsh)"
-eval "$(zoxide init --cmd cd zsh)"
+command -v fzf >/dev/null 2>&1 && eval "$(fzf --zsh)"
+command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init --cmd cd zsh)"
 
 # Ghostty's Command-p sequence is normalized by tmux; accept both forms.
 function pdf-opener-widget() {
@@ -112,18 +112,25 @@ function y() {
 	rm -f -- "$tmp"
 }
 
-if ! pgrep -u "$USER" ssh-agent > /dev/null; then
-    eval "$(ssh-agent -s)" > /dev/null
+# Respect the agent supplied by the desktop/login session (including forwarded agents).
+SSH_KEY="$HOME/.ssh/id_ed25519"
+if [[ -f "$SSH_KEY" ]] && command -v ssh-add >/dev/null 2>&1; then
+    if [[ "$(uname -s)" == Darwin && -z "${SSH_AUTH_SOCK:-}" ]]; then
+        eval "$(ssh-agent -s)" > /dev/null
+    fi
+    if [[ -n "${SSH_AUTH_SOCK:-}" ]] && command -v ssh-keygen >/dev/null 2>&1; then
+        key_fingerprint="$(ssh-keygen -lf "$SSH_KEY" 2>/dev/null | awk '{print $2}')"
+        if [[ -n "$key_fingerprint" ]] && ! ssh-add -l 2>/dev/null | grep -Fq -- "$key_fingerprint"; then
+            ssh-add "$SSH_KEY" > /dev/null 2>&1
+        fi
+    fi
 fi
 
-SSH_KEY="$HOME/.ssh/id_ed25519"  
-if ! ssh-add -l | grep -q "$(ssh-keygen -lf $SSH_KEY | awk '{print $2}')"; then
-    ssh-add $SSH_KEY > /dev/null 2>&1
+if [[ "$(uname -s)" == Darwin ]]; then
+    export LANG=en_US.UTF-8
+    export PATH="/Library/TeX/texbin:$PATH"
 fi
-
-export LANG=en_US.UTF-8
-export PATH=/Library/TeX/texbin:$PATH
 export PATH="$HOME/.cargo/bin:$PATH"
-export PATH=$PATH:$(go env GOPATH)/bin
+command -v go >/dev/null 2>&1 && export PATH="$PATH:$(go env GOPATH)/bin"
 export MANPAGER="less -R --use-color -Dd+r -Du+b"
 export MANROFFOPT="-c"
