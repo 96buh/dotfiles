@@ -14,9 +14,9 @@ sudo darwin-rebuild switch --flake "$HOME/.dotfiles#macbookpro"
 is for Apple Silicon and user `homer`. Adjust `flake.nix`, `macos/default.nix` and
 `macos/home.nix` before using a different architecture or account.
 
-Home Manager backs up conflicting unmanaged files as `.before-dotfiles` instead
-of forcing overwrites. If a backup with that name already exists, move it aside
-first. Homebrew apps are managed by the existing nix-homebrew configuration.
+Home Manager uses the original `force = true` behavior for managed app settings:
+conflicting files are replaced by the repository version. Homebrew apps are
+managed by the existing nix-homebrew configuration.
 
 ## macOS: new machine
 
