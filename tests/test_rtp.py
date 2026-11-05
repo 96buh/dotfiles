@@ -219,6 +219,22 @@ class PreviewTests(unittest.TestCase):
             self.assertEqual(shlex.split(args[-1]), ['python3', cfg['remote_tool'], 'rpc'])
             self.assertEqual(json.loads(run.call_args.kwargs['input'])['root'], str(self.root))
 
+    def test_ssh_selection_preserves_apple_keychain_support(self):
+        cfg = {'local_root': str(self.base / 'Mac preview'), 'host': 'linux',
+               'remote_tool': '/home/user/tools/remote-tex-preview/rtp.py'}
+        for platform, override, expected in [
+                ('darwin', None, '/usr/bin/ssh'),
+                ('linux', None, 'ssh'),
+                ('darwin', '/custom/ssh', '/custom/ssh')]:
+            with self.subTest(platform=platform, override=override):
+                selected = dict(cfg)
+                if override:
+                    selected['ssh_command'] = override
+                with mock.patch.object(rtp.sys, 'platform', platform):
+                    with mock.patch.object(rtp.subprocess, 'check_output', return_value=b'{}') as run:
+                        rtp.remote(selected, {'op': 'discover'})
+                        self.assertEqual(run.call_args.args[0][0], expected)
+
     def listening_socket(self, name):
         path = str(self.base / name)
         listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)

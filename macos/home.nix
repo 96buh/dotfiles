@@ -15,7 +15,7 @@
     pkgs.python3
     (pkgs.writeShellApplication {
       name = "remote-tex-preview";
-      runtimeInputs = [pkgs.bash pkgs.python3 pkgs.openssh pkgs.neovim];
+      runtimeInputs = [pkgs.bash pkgs.python3 pkgs.neovim];
       text = ''
         exec bash ${../dotfiles/common/.local/bin/remote-tex-preview} "$@"
       '';

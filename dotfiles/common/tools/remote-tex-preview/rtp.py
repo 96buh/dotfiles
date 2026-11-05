@@ -266,7 +266,9 @@ def remote(cfg, request):
         request.setdefault('root', cfg['remote_root'])
     control = cache(cfg['local_root']) / 'ssh.sock'
     control.parent.mkdir(parents=True, exist_ok=True)
-    cmd = ['ssh', '-oBatchMode=yes', '-oConnectTimeout=10', '-oControlMaster=auto',
+    # Apple's ssh understands UseKeychain; Nix/upstream OpenSSH does not.
+    ssh = cfg.get('ssh_command', '/usr/bin/ssh' if sys.platform == 'darwin' else 'ssh')
+    cmd = [ssh, '-oBatchMode=yes', '-oConnectTimeout=10', '-oControlMaster=auto',
            '-oControlPersist=60', '-oControlPath=' + str(control), cfg['host'],
            shlex.join([cfg.get('remote_python', 'python3'), cfg['remote_tool'], 'rpc'])]
     return subprocess.check_output(cmd, input=json.dumps(request).encode(), timeout=30)

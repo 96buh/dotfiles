@@ -112,8 +112,10 @@ Mac 的 Home Manager 來源透過 Nix store 部署，不要直接編輯受管理
 Mac 需要自己的 SSH 金鑰與 `~/.ssh/config`，這些憑證不在 dotfiles 中。預設使用 alias `linux`；請先確認：
 
 ```sh
-ssh linux true
+/usr/bin/ssh linux true
 ```
+
+Mac 的預覽工具固定預設使用 Apple `/usr/bin/ssh`，支援 `UseKeychain`；Nix launcher 不帶入另一份 OpenSSH，避免出現 `Bad configuration option: usekeychain`。Linux 預設使用 PATH 裡的 ssh。如需另選執行檔，可在 config.local.json 設定 `"ssh_command": "/absolute/path/to/ssh"`。
 
 SSH alias 應能非互動登入；加密金鑰可先加入 agent。工具全部從 Mac 連到 Linux，不需要 Linux 連回 Mac，也不用開放 Neovim TCP 埠。
 
@@ -192,7 +194,7 @@ RTP_REMOTE_PREVIEW=1 nvim main.tex  # Linux 遠端預覽
 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v
 ```
 
-此次在 Linux 使用真正的 GNU Stow（由官方原始碼在 /tmp 建置，未安裝系統套件）及隔離暫存目錄測試：同一個 tests/ 目錄下共 32 項測試通過（7 項部署、25 項預覽）。包含衝突不覆寫、重複部署、獨立 Neovim 設定原樣保留、真實 Neovim 自動 runtime 載入、SSH／本機分流、同步與反向跳轉。
+此次在 Linux 使用真正的 GNU Stow（由官方原始碼在 /tmp 建置，未安裝系統套件）及隔離暫存目錄測試：同一個 tests/ 目錄下共 33 項測試通過（7 項部署、26 項預覽）。包含 Mac 選用 Apple SSH、Linux 選用 PATH SSH、自訂 SSH 路徑、衝突不覆寫、重複部署、獨立 Neovim 設定原樣保留、真實 Neovim 自動 runtime 載入、SSH／本機分流、同步與反向跳轉。
 
 此機未安裝 Nix，無法在 Linux 完成 Apple Silicon 的 nix-darwin build／switch 或驗證 Skim GUI。Mac 請先跑 `./setup plan`，成功後再 apply，並測試 PDF 更新、背景定位與雙向跳轉。Nix／Homebrew 更新仍受鎖定版本與外部網路影響，不能把 Linux 測試視為 Mac 實機驗證。
 
