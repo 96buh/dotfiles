@@ -1,0 +1,8 @@
+{
+  "host": "your-existing-ssh-alias",
+  "remote_tool": "/absolute/path/to/remote_tex_preview/rtp.py",
+  "remote_python": "python3",
+  "local_root": "~/Library/Caches/remote-tex-preview",
+  "interval": 1,
+  "displayline": "/Applications/Skim.app/Contents/SharedSupport/displayline"
+}

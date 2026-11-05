@@ -1,6 +1,8 @@
 { pkgs, lib, ... }:
 
 {
+  imports = [./remote-tex-preview.nix];
+
   home.username = "homer";
   home.homeDirectory = lib.mkForce "/Users/homer";
 

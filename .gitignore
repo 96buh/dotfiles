@@ -1,3 +1,6 @@
 .DS_Store
 /result
 nvim.log
+/docs/
+__pycache__/
+*.py[cod]

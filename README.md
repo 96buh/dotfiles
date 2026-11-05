@@ -68,6 +68,41 @@ PDF_SEARCH_PATHS=("$HOME/Documents" "$HOME/Downloads")
 You can also run `pdf-opener /path/to/papers` directly. Apply the configuration
 as described above to install the script and shortcuts.
 
+## Remote TeX preview (macOS)
+
+`macos/remote-tex-preview/` contains the Python tool, remote VimTeX hook,
+example configuration and tests. Run `./setup apply` to install the
+`remote-tex-preview` command and files under `~/.local/share/remote-tex-preview`.
+Skim is provided by the macOS Homebrew configuration.
+
+Copy `~/.local/share/remote-tex-preview/config.example.json` to
+`~/.config/remote-tex-preview.json`, then set your SSH alias and the absolute
+remote path to `rtp.py`. Start the client with:
+
+```sh
+remote-tex-preview watch ~/.config/remote-tex-preview.json
+```
+
+On the remote machine, copy `rtp.py` and `preview.lua` together to a permanent
+directory. Load `dofile('/absolute/path/preview.lua').setup()` before opening
+TeX buffers in Neovim with VimTeX, starting Neovim in the project root containing
+`main.tex`. Compile manually with SyncTeX enabled; the hook publishes successful
+builds and forwards `:VimtexView` requests to Skim. The client discovers active
+projects over SSH; it does not start a compiler.
+
+For inverse search, configure Skim's custom Sync PDF command as
+`/Users/homer/.nix-profile/bin/remote-tex-preview` (or the absolute command path
+reported by `command -v remote-tex-preview`), with arguments:
+
+```text
+inverse /Users/homer/.config/remote-tex-preview.json "%file" %line
+```
+
+Disable Skim's automatic file reload; the client explicitly reloads each snapshot.
+Local PDF inverse searches continue through VimTeX's existing entry point.
+Run the bundled tests with
+`python3 -m unittest discover -s macos/remote-tex-preview/tests -v`.
+
 ## Maintenance
 
 Update the Mac lock file explicitly, then preview the configuration:
