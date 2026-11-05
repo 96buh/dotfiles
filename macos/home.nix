@@ -67,7 +67,7 @@
     recursive = true;
   };
 
-  # Native dotfiles are shared with the future non-Nix Linux setup.
+  # Shared native files are deployed with Home Manager on Mac and Stow on Linux.
   home.file.".zshrc" = {
     source = ../dotfiles/common/.zshrc;
   };

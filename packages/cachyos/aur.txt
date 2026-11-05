@@ -1,2 +1,2 @@
-# Optional prompt only; setup never invokes an AUR helper.
+# Optional prompt only; install it yourself with your preferred AUR helper.
 oh-my-posh-bin

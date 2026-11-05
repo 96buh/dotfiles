@@ -1,0 +1,4 @@
+\.gitkeep$
+(^|/)__pycache__(/|$)
+\.py[cod]$
+(^|/)config\.local\.json$

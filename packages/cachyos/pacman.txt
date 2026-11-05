@@ -1,5 +1,5 @@
 # Arch/CachyOS tools used by these dotfiles and the LaTeX workflow.
-# setup packages refreshes and upgrades the system before installing these.
+# Install with pacman; this repository does not run a package installer.
 git
 openssh
 stow

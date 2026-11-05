@@ -1,118 +1,137 @@
 # dotfiles
 
-Configure macOS and Linux from the repository root:
+macOS uses **nix-darwin / Home Manager**. Linux uses **GNU Stow**.
+There is no setup script. Clone and maintain your Neovim configuration separately.
+
+## macOS: existing installation
 
 ```sh
-./setup packages # Arch/CachyOS: upgrade and install the package manifest
-./setup check    # Check dependencies, Python/config and shell syntax
-./setup preview  # Linux: deploy just the TeX preview integration
-./setup plan     # macOS: build only; Linux: preview all Stow links
-./setup apply    # Apply all managed settings
+sudo darwin-rebuild build --flake "$HOME/.dotfiles#macbookpro"
+sudo darwin-rebuild switch --flake "$HOME/.dotfiles#macbookpro"
 ```
 
-The platform is detected automatically. Run as your normal user; macOS apply
-invokes sudo when needed. No extra task runner is required.
+`build` only builds; `switch` installs packages and home links. This configuration
+is for Apple Silicon and user `homer`. Adjust `flake.nix`, `macos/default.nix` and
+`macos/home.nix` before using a different architecture or account.
 
-## Layout
+Home Manager backs up conflicting unmanaged files as `.before-dotfiles` instead
+of forcing overwrites. If a backup with that name already exists, move it aside
+first. Homebrew apps are managed by the existing nix-homebrew configuration.
+
+## macOS: new machine
+
+A new Mac does not have `darwin-rebuild` yet. First install Command Line Tools
+(if Git is unavailable), then Nix:
+
+```sh
+xcode-select --install
+# Wait for installation to finish, then:
+curl -L https://nixos.org/nix/install | sh
+```
+
+Open a new terminal and check `nix --version`. Clone this repository into
+`~/.dotfiles` using your usual Git credentials (the HTTPS URL is
+`https://github.com/96buh/nix-config.git`). Then initialize nix-darwin once:
+
+```sh
+sudo nix --extra-experimental-features "nix-command flakes" \
+  run nix-darwin/master#darwin-rebuild -- \
+  switch --flake "$HOME/.dotfiles#macbookpro"
+```
+
+After the first successful switch, open a new terminal. Future updates use the
+normal `sudo darwin-rebuild switch --flake ...` command above. No installer or
+bootstrap wrapper is maintained in this repo.
+
+References: [Install Nix](https://nix.dev/install-nix),
+[nix-darwin installation](https://github.com/nix-darwin/nix-darwin#step-2-installing-nix-darwin).
+
+## Linux: Stow
+
+Install GNU Stow and the applications you use. On Arch/CachyOS, for example:
+
+```sh
+sudo pacman -Syu --needed stow git zsh tmux
+```
+
+Additional applications and LaTeX dependencies are listed in
+`packages/cachyos/pacman.txt`; optional AUR packages are listed in `aur.txt`.
+Install them with your package manager. Stow links files only; it does not
+install applications, change your login shell or reload tmux.
+
+From the repository root, preview links and then apply:
+
+```sh
+cd ~/.dotfiles
+stow --no-folding -n -v -d dotfiles -t "$HOME" common linux
+stow --no-folding -v -d dotfiles -t "$HOME" common linux
+```
+
+If existing files conflict, compare and back them up outside the repository,
+then retry. Do not use `--adopt` to replace repository contents. Your independent
+`~/.config/nvim` repo is not a Stow package and is left alone. The layout uses
+the normal `~/.config` and `~/.local/share` paths.
+
+The managed zsh configuration adds `~/.local/bin` to PATH. Reopen the terminal
+or source `~/.zshrc` after switching to it. zinit installs its plugins on first
+interactive startup. `.gitkeep`, Python caches and local overrides are excluded
+from Stow deployment.
+
+## Remote TeX preview
+
+Runtime code lives in `dotfiles/common/tools/remote-tex-preview/`. On Mac, all
+its deployment declarations are in `macos/home.nix`: switch creates
+`~/tools/remote-tex-preview/` with links to the Nix store. On Linux, Stow links
+the same location directly to this repository.
+
+The Neovim integration is loaded from the standard user runtime under
+`~/.local/share/nvim/site/plugin/`; it does not modify your Neovim repo.
+Mac local sessions retain VimTeX/Skim, Linux local sessions retain Zathura, and
+SSH sessions on Linux publish successful manual builds to Mac. Save and compile
+manually, with SyncTeX enabled, starting Neovim next to `main.tex`.
+
+The default SSH alias is `linux`; the remote tool is
+`/home/homer/tools/remote-tex-preview/rtp.py`. Set up your SSH keys/alias yourself.
+Mac uses Apple's `/usr/bin/ssh` to support `UseKeychain`. Machine-specific
+settings go in the unmanaged `~/.config/remote-tex-preview/config.local.json`:
+
+```json
+{
+  "host": "your-linux-alias",
+  "remote_tool": "/home/your-user/tools/remote-tex-preview/rtp.py"
+}
+```
+
+Start on Mac with `remote-tex-preview` (or `texwatch` in the managed zsh).
+Use Ctrl-C to stop; `remote-tex-preview --once` checks one cycle.
+
+Configure Skim Settings > Sync once: disable automatic reload, select Custom,
+set Command to the absolute result of `command -v remote-tex-preview`, and set
+Arguments to:
 
 ```text
-setup                 # One command entry point for both platforms
-flake.nix / flake.lock # Mac Nix entry point and pinned dependencies
-macos/                # Mac-only Nix: system, Home Manager, packages and fonts
-dotfiles/
-  common/             # Shared native dotfiles and tools, mirroring $HOME
-  macos/              # Mac-only app settings: AeroSpace, Karabiner, Ghostty
-  linux/              # Linux-only app settings; currently reserved
-packages/             # CachyOS package manifests
-scripts/              # Safe preview deployment and checks
-tests/                # Deployment, launcher and remote preview tests
-docs/                 # Supporting docs and agent plans/notes
+inverse /Users/homer/.config/remote-tex-preview/config.json "%file" %line
 ```
 
-macOS requires an existing Nix / nix-darwin installation. `plan` builds without
-switching or replacing the repository's `result` link; `apply` runs nix-darwin
-switch. Both use a `path:` flake, so newly moved files are included before Git
-staging. The Mac profile remains specific to `homer` / `macbookpro`.
+Allow macOS Automation access when prompted. `\v` performs background forward
+search; Shift-Command-click in Skim returns to the correct local/remote Neovim.
+Mac local inverse search does not require running the watcher. If tmux keeps a
+stale SSH environment, start Linux Neovim with `RTP_REMOTE_PREVIEW=0` for local
+preview or `RTP_REMOTE_PREVIEW=1` for remote preview.
 
-Linux uses GNU Stow, Git, zsh and tmux. `./setup packages` installs the manifest,
-including Python, Neovim, TeX Live, Biber, minted dependencies and fonts.
-`apply` previews conflicts first,
-then links `common` and `linux` into your home directory. Existing files are
-never adopted or overwritten. Move conflicting settings to a backup outside
-this repository before retrying. Linux uses no Nix; desktop settings and optional
-AUR packages remain separate. Use the standard `~/.config` location.
+## Other tools and layout
 
-Setup does not change your login shell, start/reload tmux, or bootstrap
-Nix/Homebrew. Only the explicit `packages` action invokes pacman; it never invokes
-an AUR helper. The shell's existing zinit bootstrap
-still downloads zinit/plugins on first interactive startup.
+- `macos/`: Nix system, Home Manager, packages, fonts and Homebrew settings.
+- `dotfiles/common/`, `dotfiles/linux/`, `dotfiles/macos/`: native home files.
+- `packages/cachyos/`: reference package lists, without an installer.
+- `docs/` and `tests/`: local notes/tests, ignored by Git. Python caches are ignored too.
 
-See [Rebuild and migration guide](docs/rebuild.md) for exact Linux/macOS steps,
-existing-file conflicts, Skim configuration and validation limits.
-Only this README belongs at the root; keep other Markdown in `docs/`.
+`pdf-opener` searches PDFs with fd/fzf. Ghostty Command-p invokes it at the zsh
+prompt; override search roots in `~/.config/pdf-opener/config` using
+`PDF_SEARCH_PATHS=("$HOME/Documents" "$HOME/Downloads")`. Tmux's Ctrl-b then p
+selects the previous window. `tmux-sessionizer` remains the session picker.
 
-## PDF picker
-
-Press `Command-p` in Ghostty to search PDF filenames and paths, both at the
-zsh prompt and inside tmux. The picker uses the current terminal pane. Press Enter
-to open the selected PDF in the default viewer, or Esc to cancel. The shell
-shortcut preserves your current command line. In both cases, use the shortcut
-at the zsh prompt.
-Tmux's `Ctrl-b` then `p` switches to the previous window.
-
-The picker searches your home directory, including hidden and ignored files,
-except `Library`, `.git`, and `.cache` directories. On macOS, it also searches
-`~/Library/CloudStorage/OneDrive-Personal` when that directory exists.
-Customize the search roots
-in `~/.config/pdf-opener/config`:
-
-```bash
-PDF_SEARCH_PATHS=("$HOME/Documents" "$HOME/Downloads")
-```
-
-You can also run `pdf-opener /path/to/papers` directly. Apply the configuration
-as described above to install the script and shortcuts.
-
-## Neovim and remote TeX preview
-
-Clone and maintain your Neovim configuration yourself in its own Git repo.
-Dotfiles does not clone, update, inspect or edit `~/.config/nvim`.
-
-The shared tool lives at `~/tools/remote-tex-preview/`. On Mac, its deployment,
-command and configuration are declared together in `macos/home.nix`. Build alone
-does not create home links: run a successful nix-darwin switch. Mac files link to
-the Nix store; Linux links point directly into this repository. Tests stay under
-`tests/` and are not deployed with the tool. The integration is loaded
-from Neovim's user runtime (`~/.local/share/nvim/site/plugin/remote-tex-preview.lua`),
-so it does not require adding a project path to the independent Neovim init.
-Linux local sessions retain Zathura; SSH sessions publish manual successful builds
-to Mac Skim. macOS retains its local VimTeX viewer. Forward search stays in the background.
-
-Start on Mac with one command (no long arguments):
-
-```sh
-remote-tex-preview
-# or, after reloading the managed zsh configuration:
-texwatch
-```
-
-`remote-tex-preview --once` checks one synchronization cycle. Subcommands such as
-`inverse` still accept explicit arguments. Host-specific overrides go in the
-unmanaged `~/.config/remote-tex-preview/config.local.json` and survive rebuilds.
-The default SSH alias is `linux`; the remote tool path is
-`/home/homer/tools/remote-tex-preview/rtp.py`, independent of the assignment repo.
-Configure the SSH alias and Skim once as described in the guide.
-
-Linux `./setup preview` deploys only the preview links and refuses conflicts.
-It does not read or write the independent Neovim configuration.
-
-## Maintenance
-
-Update the Mac lock file explicitly, then preview the configuration:
-
-```sh
-nix flake update
-./setup plan
-```
-
-Home Manager backs up conflicting unmanaged files with `.before-dotfiles` instead of forcing overwrites. If that backup already exists, move it aside first. Linux Stow refuses conflicts instead of replacing existing settings.
+Update Mac flake inputs deliberately with `nix flake update`, then build and
+switch. Linux can re-run the same Stow command after pulling changes.
+Linux deployment and preview behavior were tested in temporary directories;
+macOS build/switch and GUI behavior must be verified on Mac.
