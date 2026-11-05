@@ -245,6 +245,15 @@ def config(path):
     for key in ('host', 'remote_tool', 'local_root'):
         if not isinstance(cfg.get(key), str) or not cfg[key]:
             raise ValueError('Missing configuration: ' + key)
+    override_path = Path(path).expanduser().with_name('config.local.json')
+    if override_path.exists():
+        override = get_json(override_path)
+        if not isinstance(override, dict):
+            raise ValueError('Local configuration must be a JSON object')
+        cfg.update(override)
+        for key in ('host', 'remote_tool', 'local_root'):
+            if not isinstance(cfg.get(key), str) or not cfg[key]:
+                raise ValueError('Missing configuration: ' + key)
     if cfg['host'].startswith('-'):
         raise ValueError('Invalid SSH host')
     cfg['local_root'] = str(Path(cfg['local_root']).expanduser().resolve())

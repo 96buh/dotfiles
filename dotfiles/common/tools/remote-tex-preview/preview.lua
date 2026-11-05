@@ -4,6 +4,14 @@ local module_dir = vim.fs.dirname(debug.getinfo(1, 'S').source:sub(2))
 function M.setup(opts)
   -- macOS keeps its local VimTeX/Skim viewer, even with a shared init.lua.
   if vim.fn.has('macunix') == 1 then return end
+  -- Local Linux sessions retain their normal viewer. An explicit override also
+  -- handles tmux sessions whose SSH environment differs from their attachment.
+  local mode = vim.env.RTP_REMOTE_PREVIEW
+  local ssh = false
+  for _, name in ipairs({'SSH_CONNECTION', 'SSH_CLIENT', 'SSH_TTY'}) do
+    if vim.env[name] and vim.env[name] ~= '' then ssh = true end
+  end
+  if mode == '0' or (mode ~= '1' and not ssh) then return end
   opts = opts or {}
   -- Capture startup cwd once; subsequent :lcd/:cd must not change this project.
   local root = vim.uv.fs_realpath(opts.root or vim.fn.getcwd())

@@ -35,6 +35,7 @@
 
     homeManagerConfig = {
       home-manager = {
+        backupFileExtension = "before-dotfiles";
         useGlobalPkgs = true;
         useUserPackages = true;
         users.homer = import ./macos/home.nix;

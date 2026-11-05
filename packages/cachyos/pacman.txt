@@ -1,0 +1,33 @@
+# Arch/CachyOS tools used by these dotfiles and the LaTeX workflow.
+# setup packages refreshes and upgrades the system before installing these.
+git
+openssh
+stow
+zsh
+tmux
+neovim
+python
+gcc
+make
+unzip
+curl
+nodejs
+npm
+tree-sitter-cli
+uv
+ripgrep
+fd
+fzf
+eza
+bat
+zoxide
+yazi
+texlive-meta
+biber
+python-pygments
+zathura
+zathura-pdf-mupdf
+fontconfig
+ttf-jetbrains-mono
+ttf-jetbrains-mono-nerd
+noto-fonts-cjk

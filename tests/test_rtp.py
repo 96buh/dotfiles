@@ -1,4 +1,4 @@
-"""Run with python3 -m unittest discover -s dotfiles/common/tools/remote-tex-preview/tests -v."""
+"""Run with python3 -m unittest discover -s tests -v."""
 import gzip
 import importlib.util
 import io
@@ -13,7 +13,7 @@ import tempfile
 import unittest
 from unittest import mock
 
-TOOL = Path(__file__).resolve().parents[1]
+TOOL = Path(__file__).resolve().parents[1] / "dotfiles/common/tools/remote-tex-preview"
 spec = importlib.util.spec_from_file_location('rtp', TOOL / 'rtp.py')
 rtp = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(rtp)
@@ -21,9 +21,9 @@ spec.loader.exec_module(rtp)
 
 class PreviewTests(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.TemporaryDirectory(prefix='rtp test ', dir='/tmp')
+        self.tmp = tempfile.TemporaryDirectory(prefix='rtp test ')
         self.addCleanup(self.tmp.cleanup)
-        self.base = Path(self.tmp.name).resolve()
+        self.base = Path(self.tmp.name)
         self.root = self.base / 'remote project'
         self.root.mkdir()
         self.env = mock.patch.dict(os.environ, {'XDG_CACHE_HOME': str(self.base / 'cache'),
@@ -161,7 +161,6 @@ class PreviewTests(unittest.TestCase):
 
 
     @unittest.skipUnless(shutil.which('nvim') and shutil.which('pdflatex'), 'Editor/TeX unavailable')
-    @unittest.skipIf(os.sys.platform == 'darwin', 'Remote VimTeX hook intentionally disabled on macOS')
     def test_vimtex_manual_compile_hook_and_view(self):
         plugin = Path.home() / '.local/share/nvim/lazy/vimtex'
         if not plugin.exists():
@@ -169,6 +168,7 @@ class PreviewTests(unittest.TestCase):
         (self.root / 'main.tex').write_text('\\documentclass{article}\n\\begin{document}\nHello.\n\\end{document}\n')
         init = self.base / 'init.lua'
         init.write_text("vim.opt.rtp:prepend(" + json.dumps(str(plugin)) + ")\n" +
+            "vim.env.SSH_CONNECTION='test-ssh-session'; vim.env.RTP_REMOTE_PREVIEW=nil\n" +
             "vim.g.vimtex_view_automatic=0\n" +
             "vim.g.vimtex_compiler_latexmk={out_dir='out', options={'-pdf','-synctex=1','-interaction=nonstopmode'}}\n" +
             "dofile(" + json.dumps(str(TOOL / 'preview.lua')) + ").setup()\n" +
@@ -363,7 +363,6 @@ class PreviewTests(unittest.TestCase):
         self.assertEqual(json.loads(result), [str(file), 2])
 
     @unittest.skipUnless(shutil.which('nvim'), 'Neovim unavailable')
-    @unittest.skipIf(os.sys.platform == 'darwin', 'Remote VimTeX hook intentionally disabled on macOS')
     def test_moved_lua_automatically_uses_cwd_for_different_reports(self):
         moved = self.base / 'fixed tool location'
         shutil.copytree(TOOL, moved, ignore=shutil.ignore_patterns('__pycache__'))
@@ -372,7 +371,8 @@ class PreviewTests(unittest.TestCase):
         for root in (self.root, second):
             (root / 'main.tex').write_text('hello')
             script = self.base / 'probe.lua'
-            script.write_text('dofile(' + json.dumps(str(moved / 'preview.lua')) + ').setup()\n' +
+            script.write_text("vim.env.SSH_CONNECTION='test-ssh-session'; vim.env.RTP_REMOTE_PREVIEW=nil\n" +
+                'dofile(' + json.dumps(str(moved / 'preview.lua')) + ').setup()\n' +
                 "vim.b.vimtex={root=vim.fn.getcwd(),viewer={name='Test'}}\n" +
                 "vim.cmd('doautocmd User VimtexEventInitPost')\n" +
                 "assert(vim.wait(5000,function() return #vim.fn.glob(" +
@@ -386,6 +386,32 @@ class PreviewTests(unittest.TestCase):
             session_files = list((rtp.cache(root) / 'sessions').glob('*.json'))
             self.assertEqual(len(session_files), 1)
             self.assertEqual(rtp.get_json(session_files[0])['root'], str(root))
+
+    @unittest.skipUnless(shutil.which('nvim'), 'Neovim unavailable')
+    def test_preview_activation_preserves_local_viewer_and_detects_ssh(self):
+        cases = [({}, False), ({'SSH_CONNECTION': ''}, False),
+                 ({'SSH_CONNECTION': 'client port server port'}, True),
+                 ({'SSH_CLIENT': 'client port port'}, True),
+                 ({'SSH_TTY': '/dev/pts/1'}, True),
+                 ({'SSH_CONNECTION': 'connected', 'RTP_REMOTE_PREVIEW': '0'}, False),
+                 ({'RTP_REMOTE_PREVIEW': '1'}, True)]
+        for env, enabled in cases:
+            with self.subTest(env=env):
+                script = self.base / 'activation.lua'
+                lines = ["vim.env.SSH_CONNECTION=nil; vim.env.SSH_CLIENT=nil; vim.env.SSH_TTY=nil; vim.env.RTP_REMOTE_PREVIEW=nil",
+                         "vim.g.vimtex_view_automatic=1; vim.g.vimtex_view_method='zathura'"]
+                lines += ['vim.env[' + json.dumps(k) + ']=' + json.dumps(v) for k, v in env.items()]
+                lines += ['dofile(' + json.dumps(str(TOOL / 'preview.lua')) + ').setup()',
+                          'assert((_G.RemoteTexPreviewHandlers ~= nil) == ' + str(enabled).lower() + ')',
+                          'assert(vim.g.vimtex_view_automatic == ' + ('0' if enabled else '1') + ')',
+                          "assert(vim.g.vimtex_view_method == 'zathura')",
+                          "print('PASS activation'); vim.cmd('qa!')"]
+                script.write_text('\n'.join(lines))
+                result = subprocess.run(['nvim', '--headless', '-u', 'NONE', '-i', 'NONE',
+                    '-c', 'luafile ' + str(script).replace(' ', r'\ '), '-c', 'qa!'],
+                    cwd=self.root, capture_output=True, text=True, timeout=10)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn('PASS activation', result.stdout + result.stderr)
 
 
 if __name__ == '__main__':

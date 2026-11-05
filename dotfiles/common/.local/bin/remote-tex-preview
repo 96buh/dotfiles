@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
-exec python3 "$HOME/tools/remote-tex-preview/rtp.py" "$@"
+config="${RTP_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/remote-tex-preview/config.json}"
+case "${1:-}" in
+    '') set -- watch "$config" ;;
+    --once) shift; set -- watch "$config" --once "$@" ;;
+esac
+exec "${RTP_PYTHON:-python3}" "${RTP_TOOL:-$HOME/tools/remote-tex-preview/rtp.py}" "$@"

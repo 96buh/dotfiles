@@ -16,7 +16,7 @@ fi
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 
 if [ ! -d "$ZINIT_HOME" ]; then
-   mkdir -p "$(dirname $ZINIT_HOME)"
+   mkdir -p "$(dirname "$ZINIT_HOME")"
    git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
 fi
 
@@ -85,6 +85,7 @@ alias lsa='eza --group-directories-first --icons=always -a --long'
 alias vim='nvim'
 alias vi='nvim'
 alias c='clear'
+alias texwatch='remote-tex-preview'
 alias tree='eza -Ta --git-ignore --group-directories-first --level=3'
 
 # Shell integrations

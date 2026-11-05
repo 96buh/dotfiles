@@ -3,9 +3,11 @@
 Configure macOS and Linux from the repository root:
 
 ```sh
-./setup check   # Check dependencies and shell syntax
-./setup plan    # macOS: build only; Linux: preview links
-./setup apply   # Apply to the current machine
+./setup packages # Arch/CachyOS: upgrade and install the package manifest
+./setup check    # Check dependencies, Python/config and shell syntax
+./setup preview  # Linux: deploy just the TeX preview integration
+./setup plan     # macOS: build only; Linux: preview all Stow links
+./setup apply    # Apply all managed settings
 ```
 
 The platform is detected automatically. Run as your normal user; macOS apply
@@ -21,7 +23,9 @@ dotfiles/
   common/             # Shared native dotfiles and tools, mirroring $HOME
   macos/              # Mac-only app settings: AeroSpace, Karabiner, Ghostty
   linux/              # Linux-only app settings; currently reserved
-packages/cachyos/     # Reserved pacman / AUR manifests
+packages/             # CachyOS package manifests
+scripts/              # Safe preview deployment and checks
+tests/                # Deployment, launcher and remote preview tests
 docs/                 # Supporting docs and agent plans/notes
 ```
 
@@ -30,21 +34,21 @@ switching or replacing the repository's `result` link; `apply` runs nix-darwin
 switch. Both use a `path:` flake, so newly moved files are included before Git
 staging. The Mac profile remains specific to `homer` / `macbookpro`.
 
-Linux requires GNU Stow, Git, zsh and tmux. `apply` previews conflicts first,
+Linux uses GNU Stow, Git, zsh and tmux. `./setup packages` installs the manifest,
+including Python, Neovim, TeX Live, Biber, minted dependencies and fonts.
+`apply` previews conflicts first,
 then links `common` and `linux` into your home directory. Existing files are
 never adopted or overwritten. Move conflicting settings to a backup outside
-this repository before retrying. Linux uses no Nix; system packages, desktop
-settings and shell plugins are installed separately. Use the
-standard `~/.config` location.
+this repository before retrying. Linux uses no Nix; desktop settings and optional
+AUR packages remain separate. Use the standard `~/.config` location.
 
-Setup does not change your login shell, start/reload tmux, or install Nix,
-Homebrew, pacman/AUR packages, or plugins. The shell's existing zinit bootstrap
+Setup does not change your login shell, start/reload tmux, or bootstrap
+Nix/Homebrew. Only the explicit `packages` action invokes pacman; it never invokes
+an AUR helper. The shell's existing zinit bootstrap
 still downloads zinit/plugins on first interactive startup.
 
-See [Linux setup](docs/linux.md), [tmux settings](docs/tmux.md),
-[shell performance](docs/shell.md),
-[CachyOS package plans](docs/cachyos-packages.md), and the
-[integration roadmap](docs/cachyos-integration-plan.md).
+See [Rebuild and migration guide](docs/rebuild.md) for exact Linux/macOS steps,
+existing-file conflicts, Skim configuration and validation limits.
 Only this README belongs at the root; keep other Markdown in `docs/`.
 
 ## PDF picker
@@ -69,45 +73,38 @@ PDF_SEARCH_PATHS=("$HOME/Documents" "$HOME/Downloads")
 You can also run `pdf-opener /path/to/papers` directly. Apply the configuration
 as described above to install the script and shortcuts.
 
-## Remote TeX preview (macOS)
+## Neovim and remote TeX preview
 
-`dotfiles/common/tools/remote-tex-preview/` contains the Python tool, remote VimTeX hook,
-and tests. Configuration lives in
-`dotfiles/common/.config/remote-tex-preview/`. Run `./setup apply` to install the
-`remote-tex-preview` command and files under `~/tools/remote-tex-preview/` and
-`~/.config/remote-tex-preview/`.
-Skim is provided by the macOS Homebrew configuration.
+Clone and maintain your Neovim configuration yourself in its own Git repo.
+Dotfiles does not clone, update, inspect or edit `~/.config/nvim`.
 
-The tracked `config.json` preserves the current SSH alias and remote tool path.
-Edit `dotfiles/common/.config/remote-tex-preview/config.json` to change them;
-`config.example.json` documents the available settings. The remote path must
-match the actual location on the SSH host. Start the client with:
+The shared tool lives at `~/tools/remote-tex-preview/`. On Mac, its deployment,
+command and configuration are declared together in `macos/home.nix`. Build alone
+does not create home links: run a successful nix-darwin switch. Mac files link to
+the Nix store; Linux links point directly into this repository. Tests stay under
+`tests/` and are not deployed with the tool. The integration is loaded
+from Neovim's user runtime (`~/.local/share/nvim/site/plugin/remote-tex-preview.lua`),
+so it does not require adding a project path to the independent Neovim init.
+Linux local sessions retain Zathura; SSH sessions publish manual successful builds
+to Mac Skim. macOS retains its local VimTeX viewer. Forward search stays in the background.
+
+Start on Mac with one command (no long arguments):
 
 ```sh
-remote-tex-preview watch ~/.config/remote-tex-preview/config.json
+remote-tex-preview
+# or, after reloading the managed zsh configuration:
+texwatch
 ```
 
-On Linux, `./setup apply` deploys the same common files through Stow.
-Alternatively, copy `rtp.py` and `preview.lua` together to
-`~/tools/remote-tex-preview/` on the remote machine. Load
-`dofile(vim.fn.expand('~/tools/remote-tex-preview/preview.lua')).setup()` before opening
-TeX buffers in Neovim with VimTeX, starting Neovim in the project root containing
-`main.tex`. Compile manually with SyncTeX enabled; the hook publishes successful
-builds and forwards `:VimtexView` requests to Skim. The client discovers active
-projects over SSH; it does not start a compiler.
+`remote-tex-preview --once` checks one synchronization cycle. Subcommands such as
+`inverse` still accept explicit arguments. Host-specific overrides go in the
+unmanaged `~/.config/remote-tex-preview/config.local.json` and survive rebuilds.
+The default SSH alias is `linux`; the remote tool path is
+`/home/homer/tools/remote-tex-preview/rtp.py`, independent of the assignment repo.
+Configure the SSH alias and Skim once as described in the guide.
 
-For inverse search, configure Skim's custom Sync PDF command as
-`/Users/homer/.nix-profile/bin/remote-tex-preview` (or the absolute command path
-reported by `command -v remote-tex-preview`), with arguments:
-
-```text
-inverse /Users/homer/.config/remote-tex-preview/config.json "%file" %line
-```
-
-Disable Skim's automatic file reload; the client explicitly reloads each snapshot.
-Local PDF inverse searches continue through VimTeX's existing entry point.
-Run the bundled tests with
-`python3 -m unittest discover -s dotfiles/common/tools/remote-tex-preview/tests -v`.
+Linux `./setup preview` deploys only the preview links and refuses conflicts.
+It does not read or write the independent Neovim configuration.
 
 ## Maintenance
 
@@ -118,5 +115,4 @@ nix flake update
 ./setup plan
 ```
 
-Home Manager-managed files use `force = true`. Linux Stow deployment refuses
-conflicts instead of replacing existing settings.
+Home Manager backs up conflicting unmanaged files with `.before-dotfiles` instead of forcing overwrites. If that backup already exists, move it aside first. Linux Stow refuses conflicts instead of replacing existing settings.
