@@ -39,7 +39,7 @@ if [[ -f "$CONFIG_FILE_NAME" ]]; then
     source "$CONFIG_FILE_NAME"
 fi
 
-if [[ $TS_LOG != "true" ]]; then
+if [[ $TS_LOG == "file" ]]; then
     if [[ -z $TS_LOG_FILE ]]; then
         TS_LOG_FILE="$HOME/.local/share/tmux-sessionizer/tmux-sessionizer.logs"
     fi
@@ -143,7 +143,7 @@ switch_to() {
 }
 
 has_session() {
-    tmux list-sessions | grep -q "^$1:"
+    tmux has-session -t "=$1" 2>/dev/null
 }
 
 hydrate() {
@@ -160,12 +160,7 @@ hydrate() {
 }
 
 is_tmux_running() {
-    tmux_running=$(pgrep tmux)
-
-    if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
-        return 1
-    fi
-    return 0
+    tmux list-sessions >/dev/null 2>&1
 }
 
 init_pane_cache() {
@@ -240,6 +235,7 @@ find_dirs() {
             depth="${BASH_REMATCH[2]}"
         else
             path="$entry"
+            depth="${TS_MAX_DEPTH:-1}"
         fi
 
         [[ -d "$path" ]] && find "$path" -mindepth 1 -maxdepth "${depth:-${TS_MAX_DEPTH:-1}}" -path '*/.git' -prune -o -type d -print

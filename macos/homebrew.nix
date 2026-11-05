@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-{
+{pkgs, ...}: {
   homebrew = {
     enable = true;
     brews = [
@@ -22,6 +21,10 @@
       "gdown"
       "unar"
       "tlrc"
+      "onefetch"
+      "charmbracelet/tap/freeze"
+      "librsvg"
+      "leaf-markdown-viewer"
     ];
     # GUI Apps
     casks = [
@@ -44,6 +47,8 @@
       "obs"
       "codex"
       "figma"
+      "inkscape"
+      "iina"
     ];
     onActivation = {
       autoUpdate = false;

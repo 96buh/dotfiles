@@ -1,0 +1,43 @@
+line-length = 120
+indent-width = 4
+
+[lint]
+select = [
+    "E",      # pycodestyle errors
+    "F",      # Pyflakes
+    "I",      # isort
+    "UP",     # pyupgrade
+    "B",      # flake8-bugbear
+    "SIM",    # flake8-simplify
+    "C4",     # flake8-comprehensions
+    "PIE",    # flake8-pie
+    "RUF",    # Ruff-specific rules
+    "NPY",    # NumPy-specific rules
+    "D",
+]
+
+ignore = [
+    "E501",   # Line length is handled by formatter
+    "RUF001",  # Ambiguous Unicode in strings
+    "RUF002",  # Ambiguous Unicode in docstrings
+    "RUF003",  # Ambiguous Unicode in comments
+    "D100",  # Missing module docstring
+    "D101",  # Missing class docstring
+    "D102",  # Missing method docstring
+    "D103",  # Missing function docstring
+    "D104",  # Missing package docstring
+    "D105",  # Missing magic method docstring
+    "D106",  # Missing nested class docstring
+    "D107",  # Missing __init__ docstring
+]
+
+[lint.pydocstyle]
+convention = "google"
+
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+docstring-code-format = true
+docstring-code-line-length = "dynamic"

@@ -1,8 +1,12 @@
-export PATH="$HOME/.local/bin:$PATH"
+# Keep inherited paths unique when opening nested shells or tmux panes.
+typeset -U path fpath
+path=("$HOME/.local/bin" "$HOME/.cargo/bin" $path)
 
-if [[ -f "/opt/homebrew/bin/brew" ]]; then
-  # If you're using macOS, you'll want this enabled
-  eval "$(/opt/homebrew/bin/brew shellenv)"
+if [[ -x /opt/homebrew/bin/brew ]]; then
+  # The login environment normally initializes Homebrew already.
+  if [[ -z ${HOMEBREW_PREFIX:-} ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  fi
   # Homebrew LLVM is keg-only, so expose its tools explicitly.
   if [[ -d "$HOMEBREW_PREFIX/opt/llvm@17/bin" ]]; then
     export PATH="$HOMEBREW_PREFIX/opt/llvm@17/bin:$PATH"
@@ -20,13 +24,12 @@ fi
 source "${ZINIT_HOME}/zinit.zsh"
 
 # Add in zsh plugins
-zinit light zsh-users/zsh-syntax-highlighting
 zinit light zsh-users/zsh-completions
-zinit light zsh-users/zsh-autosuggestions
-zinit light Aloxaf/fzf-tab
 
-# Load completions
-autoload -Uz compinit && compinit
+# Use a separate dump from /etc/zshrc: different fpath values must not keep
+# invalidating each other's cache. Keep compinit's normal security checks.
+autoload -Uz compinit
+compinit -d "${ZDOTDIR:-$HOME}/.zcompdump-dotfiles-$ZSH_VERSION"
 
 zinit cdreplay -q
 
@@ -36,7 +39,7 @@ if [[ "$TERM_PROGRAM" != "Apple_Terminal" ]] && command -v oh-my-posh >/dev/null
 fi
 
 # Keybindings
-export KEYTIMEOUT=1
+KEYTIMEOUT=1
 bindkey -v
 bindkey '^p' history-search-backward
 bindkey '^n' history-search-forward
@@ -47,13 +50,11 @@ bindkey -s ^f "tmux-sessionizer\n"
 HISTSIZE=5000
 HISTFILE=~/.zsh_history
 SAVEHIST=$HISTSIZE
-HISTDUP=erase
 setopt appendhistory
 setopt sharehistory
 setopt hist_ignore_space
 setopt hist_ignore_all_dups
 setopt hist_save_no_dups
-setopt hist_ignore_dups
 setopt hist_find_no_dups
 
 # Completion styling
@@ -80,7 +81,6 @@ export FZF_ALT_C_OPTS="--preview 'eza -T --icons=always --color=always {} | head
 
 # Aliases
 alias ls='eza --group-directories-first --icons=always --no-user'
-# options: --no-filesize, --no-time, --no-permissions
 alias lsa='eza --group-directories-first --icons=always -a --long'
 alias vim='nvim'
 alias vi='nvim'
@@ -90,6 +90,10 @@ alias tree='eza -Ta --git-ignore --group-directories-first --level=3'
 # Shell integrations
 command -v fzf >/dev/null 2>&1 && eval "$(fzf --zsh)"
 command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init --cmd cd zsh)"
+
+# fzf-tab must follow compinit/fzf; highlighting follows all widget definitions.
+zinit light Aloxaf/fzf-tab
+zinit light zsh-users/zsh-autosuggestions
 
 # Ghostty's Command-p sequence is normalized by tmux; accept both forms.
 function pdf-opener-widget() {
@@ -112,25 +116,17 @@ function y() {
 	rm -f -- "$tmp"
 }
 
-# Respect the agent supplied by the desktop/login session (including forwarded agents).
-SSH_KEY="$HOME/.ssh/id_ed25519"
-if [[ -f "$SSH_KEY" ]] && command -v ssh-add >/dev/null 2>&1; then
-    if [[ "$(uname -s)" == Darwin && -z "${SSH_AUTH_SOCK:-}" ]]; then
-        eval "$(ssh-agent -s)" > /dev/null
-    fi
-    if [[ -n "${SSH_AUTH_SOCK:-}" ]] && command -v ssh-keygen >/dev/null 2>&1; then
-        key_fingerprint="$(ssh-keygen -lf "$SSH_KEY" 2>/dev/null | awk '{print $2}')"
-        if [[ -n "$key_fingerprint" ]] && ! ssh-add -l 2>/dev/null | grep -Fq -- "$key_fingerprint"; then
-            ssh-add "$SSH_KEY" > /dev/null 2>&1
-        fi
-    fi
-fi
-
-if [[ "$(uname -s)" == Darwin ]]; then
+if [[ $OSTYPE == darwin* ]]; then
     export LANG=en_US.UTF-8
-    export PATH="/Library/TeX/texbin:$PATH"
+    path=(/Library/TeX/texbin $path)
 fi
-export PATH="$HOME/.cargo/bin:$PATH"
-command -v go >/dev/null 2>&1 && export PATH="$PATH:$(go env GOPATH)/bin"
+# Respect a custom GOPATH; otherwise Go uses ~/go. Avoid spawning go each time.
+for go_path in "${(@s/:/)${GOPATH:-$HOME/go}}"; do
+  path+=("$go_path/bin")
+done
+unset go_path
 export MANPAGER="less -R --use-color -Dd+r -Du+b"
 export MANROFFOPT="-c"
+
+# SSH keys are loaded on demand by ~/.ssh/config (AddKeysToAgent / UseKeychain).
+zinit light zsh-users/zsh-syntax-highlighting

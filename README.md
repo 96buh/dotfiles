@@ -18,7 +18,7 @@ setup                 # One command entry point for both platforms
 flake.nix / flake.lock # Mac Nix entry point and pinned dependencies
 macos/                # Mac-only Nix: system, Home Manager, packages and fonts
 dotfiles/
-  common/             # Shared native dotfiles, mirroring $HOME
+  common/             # Shared native dotfiles and tools, mirroring $HOME
   macos/              # Mac-only app settings: AeroSpace, Karabiner, Ghostty
   linux/              # Linux-only app settings; currently reserved
 packages/cachyos/     # Reserved pacman / AUR manifests
@@ -34,14 +34,15 @@ Linux requires GNU Stow, Git, zsh and tmux. `apply` previews conflicts first,
 then links `common` and `linux` into your home directory. Existing files are
 never adopted or overwritten. Move conflicting settings to a backup outside
 this repository before retrying. Linux uses no Nix; system packages, desktop
-settings, shell plugins and tmux plugins are installed separately. Use the
+settings and shell plugins are installed separately. Use the
 standard `~/.config` location.
 
 Setup does not change your login shell, start/reload tmux, or install Nix,
 Homebrew, pacman/AUR packages, or plugins. The shell's existing zinit bootstrap
 still downloads zinit/plugins on first interactive startup.
 
-See [Linux setup](docs/linux.md), [tmux plugins](docs/tmux.md),
+See [Linux setup](docs/linux.md), [tmux settings](docs/tmux.md),
+[shell performance](docs/shell.md),
 [CachyOS package plans](docs/cachyos-packages.md), and the
 [integration roadmap](docs/cachyos-integration-plan.md).
 Only this README belongs at the root; keep other Markdown in `docs/`.
@@ -70,21 +71,26 @@ as described above to install the script and shortcuts.
 
 ## Remote TeX preview (macOS)
 
-`macos/remote-tex-preview/` contains the Python tool, remote VimTeX hook,
-example configuration and tests. Run `./setup apply` to install the
-`remote-tex-preview` command and files under `~/.local/share/remote-tex-preview`.
+`dotfiles/common/tools/remote-tex-preview/` contains the Python tool, remote VimTeX hook,
+and tests. Configuration lives in
+`dotfiles/common/.config/remote-tex-preview/`. Run `./setup apply` to install the
+`remote-tex-preview` command and files under `~/tools/remote-tex-preview/` and
+`~/.config/remote-tex-preview/`.
 Skim is provided by the macOS Homebrew configuration.
 
-Copy `~/.local/share/remote-tex-preview/config.example.json` to
-`~/.config/remote-tex-preview.json`, then set your SSH alias and the absolute
-remote path to `rtp.py`. Start the client with:
+The tracked `config.json` preserves the current SSH alias and remote tool path.
+Edit `dotfiles/common/.config/remote-tex-preview/config.json` to change them;
+`config.example.json` documents the available settings. The remote path must
+match the actual location on the SSH host. Start the client with:
 
 ```sh
-remote-tex-preview watch ~/.config/remote-tex-preview.json
+remote-tex-preview watch ~/.config/remote-tex-preview/config.json
 ```
 
-On the remote machine, copy `rtp.py` and `preview.lua` together to a permanent
-directory. Load `dofile('/absolute/path/preview.lua').setup()` before opening
+On Linux, `./setup apply` deploys the same common files through Stow.
+Alternatively, copy `rtp.py` and `preview.lua` together to
+`~/tools/remote-tex-preview/` on the remote machine. Load
+`dofile(vim.fn.expand('~/tools/remote-tex-preview/preview.lua')).setup()` before opening
 TeX buffers in Neovim with VimTeX, starting Neovim in the project root containing
 `main.tex`. Compile manually with SyncTeX enabled; the hook publishes successful
 builds and forwards `:VimtexView` requests to Skim. The client discovers active
@@ -95,13 +101,13 @@ For inverse search, configure Skim's custom Sync PDF command as
 reported by `command -v remote-tex-preview`), with arguments:
 
 ```text
-inverse /Users/homer/.config/remote-tex-preview.json "%file" %line
+inverse /Users/homer/.config/remote-tex-preview/config.json "%file" %line
 ```
 
 Disable Skim's automatic file reload; the client explicitly reloads each snapshot.
 Local PDF inverse searches continue through VimTeX's existing entry point.
 Run the bundled tests with
-`python3 -m unittest discover -s macos/remote-tex-preview/tests -v`.
+`python3 -m unittest discover -s dotfiles/common/tools/remote-tex-preview/tests -v`.
 
 ## Maintenance
 

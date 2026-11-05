@@ -1,0 +1,5 @@
+{
+  "host": "linux",
+  "remote_tool": "/home/homer/Projects/ADL/hw3/remote_tex_preview/rtp.py",
+  "local_nvim": "/run/current-system/sw/bin/nvim"
+}

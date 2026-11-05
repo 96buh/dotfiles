@@ -1,43 +1,29 @@
-{ pkgs, lib, ... }:
-
 {
+  pkgs,
+  lib,
+  ...
+}: {
   imports = [./remote-tex-preview.nix];
 
   home.username = "homer";
   home.homeDirectory = lib.mkForce "/Users/homer";
 
-
-  home.sessionPath = [ "$HOME/.local/bin" ];
+  home.sessionPath = ["$HOME/.local/bin"];
   # Install dependencies here; application settings live in dotfiles/common.
-  home.packages = [ pkgs.git pkgs.tmux pkgs.zsh ];
+  home.packages = [pkgs.git pkgs.tmux pkgs.zsh];
 
   home.file.".config/git/config" = {
     source = ../dotfiles/common/.config/git/config;
     force = true;
   };
 
+  home.file.".config/ruff/ruff.toml" = {
+    source = ../dotfiles/common/.config/ruff/ruff.toml;
+    force = true;
+  };
+
   home.file.".config/tmux/tmux.conf" = {
     source = ../dotfiles/common/.config/tmux/tmux.conf;
-    force = true;
-  };
-
-  home.file.".config/tmux/plugins/sensible" = {
-    source = "${pkgs.tmuxPlugins.sensible}/share/tmux-plugins/sensible";
-    force = true;
-  };
-
-  home.file.".config/tmux/plugins/resurrect" = {
-    source = "${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect";
-    force = true;
-  };
-
-  home.file.".config/tmux/plugins/continuum" = {
-    source = "${pkgs.tmuxPlugins.continuum}/share/tmux-plugins/continuum";
-    force = true;
-  };
-
-  home.file.".config/tmux/plugins/yank" = {
-    source = "${pkgs.tmuxPlugins.yank}/share/tmux-plugins/yank";
     force = true;
   };
 

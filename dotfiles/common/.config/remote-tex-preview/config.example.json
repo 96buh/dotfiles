@@ -1,6 +1,6 @@
 {
   "host": "your-existing-ssh-alias",
-  "remote_tool": "/absolute/path/to/remote_tex_preview/rtp.py",
+  "remote_tool": "/home/your-user/tools/remote-tex-preview/rtp.py",
   "remote_python": "python3",
   "local_root": "~/Library/Caches/remote-tex-preview",
   "interval": 1,

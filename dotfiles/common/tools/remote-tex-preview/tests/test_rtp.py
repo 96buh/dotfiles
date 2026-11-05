@@ -1,4 +1,4 @@
-"""Run with python3 -m unittest discover -s remote_tex_preview/tests -v."""
+"""Run with python3 -m unittest discover -s dotfiles/common/tools/remote-tex-preview/tests -v."""
 import gzip
 import importlib.util
 import io
