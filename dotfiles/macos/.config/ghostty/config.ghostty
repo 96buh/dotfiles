@@ -1,10 +1,16 @@
 font-size = 20
 macos-option-as-alt = true
+# Prepare remote terminfo and terminal environment when connecting via SSH.
+shell-integration-features = ssh-env,ssh-terminfo
 # Command-P opens the PDF picker in zsh and tmux.
 keybind = super+p=text:\x1b[34~
 theme = dark:Gruvbox Dark,light:Github Light Default
 window-padding-x = 10
 window-padding-y = 5
 macos-titlebar-style = "hidden"
-font-family = "JetBrainsMono Nerd Font"
+font-family = "JetBrainsMono Nerd Font Mono"
 font-family = "Sarasa Term TC"
+# Shell commands and remote Codex BEL notifications request Dock attention.
+notify-on-command-finish = unfocused
+notify-on-command-finish-after = 10s
+bell-features = attention,title,no-system,no-audio

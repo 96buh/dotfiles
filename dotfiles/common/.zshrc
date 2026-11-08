@@ -88,6 +88,16 @@ alias c='clear'
 alias texwatch='remote-tex-preview'
 alias tree='eza -Ta --git-ignore --group-directories-first --level=3'
 
+# BEL travels through SSH/tmux; Ghostty handles Dock attention on the Mac.
+# Send even without remote focus reports; Ghostty suppresses focused attention.
+function codex() {
+  command codex \
+    -c 'tui.notifications=["agent-turn-complete"]' \
+    -c 'tui.notification_method="bel"' \
+    -c 'tui.notification_condition="always"' \
+    "$@"
+}
+
 # Shell integrations
 command -v fzf >/dev/null 2>&1 && eval "$(fzf --zsh)"
 command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init --cmd cd zsh)"

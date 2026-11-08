@@ -119,6 +119,47 @@ Mac local inverse search does not require running the watcher. If tmux keeps a
 stale SSH environment, start Linux Neovim with `RTP_REMOTE_PREVIEW=0` for local
 preview or `RTP_REMOTE_PREVIEW=1` for remote preview.
 
+## Codex completion alerts over SSH
+
+The managed zsh `codex` function enables a BEL notification after each completed
+interactive turn. SSH carries it back to Ghostty, and the managed tmux settings
+forward bells from all windows. Ghostty requests Dock attention when it is
+unfocused, without playing an alert sound. This also works for local Codex CLI.
+It does not depend on exiting Codex or disconnecting SSH.
+
+Apply the Mac configuration and reload Ghostty with Command-Shift-comma.
+Deploy the common dotfiles on the SSH host using the Linux Stow instructions,
+then open a new remote shell. For existing tmux servers on either side, run:
+
+```sh
+tmux source-file ~/.config/tmux/tmux.conf
+```
+
+For a quick check in the SSH terminal, run `sleep 3; printf '\a'`, then switch
+to another app before the timer expires. Ghostty's Dock icon should bounce once.
+Run `type codex` remotely to confirm it resolves to the managed shell function.
+`command codex` bypasses these defaults; noninteractive `codex exec` does not use
+TUI notifications.
+
+## Terminal workflow
+
+Use separate Ghostty tabs for local work and SSH hosts, with one tmux session
+per project on the machine running the work. Connect from a fresh local shell
+with `ssh -t linux 'tmux new-session -A -s research'` to create or reattach a
+remote session. Ghostty's SSH integration prepares remote terminfo when needed.
+
+Tmux shows the host on the right and a bell marker on inactive windows that
+received a completion alert. Closed windows are automatically renumbered.
+After Ctrl-b, use `c` for a new window, `|` for side-by-side panes, or `-` for
+stacked panes; each starts in the current pane's directory. The default `%`
+and `"` split bindings also preserve the directory. Use `z` to zoom/restore a
+pane, `w` to choose a window, and `s` to choose a session.
+
+Give independently editing agents separate Git worktrees and named tmux windows.
+Keep a window for editing/review and another for tests or logs. Remote tmux keeps
+jobs running across SSH disconnects, but terminal bell alerts require an attached
+client and a live connection to reach the Mac.
+
 ## Other tools and layout
 
 - `macos/`: Nix system, Home Manager, packages, fonts and Homebrew settings.
