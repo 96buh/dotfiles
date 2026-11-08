@@ -10,9 +10,34 @@ sudo darwin-rebuild build --flake "$HOME/.dotfiles#macbookpro"
 sudo darwin-rebuild switch --flake "$HOME/.dotfiles#macbookpro"
 ```
 
-`build` only builds; `switch` installs packages and home links. This configuration
-is for Apple Silicon and user `homer`. Adjust `flake.nix`, `macos/default.nix` and
-`macos/home.nix` before using a different architecture or account.
+`build` only builds; `switch` installs packages and home links.
+
+Before the first build on another Mac, edit **`macos/settings.nix`**. It is the
+single place to configure the existing account and architecture:
+
+```nix
+let
+  username = "your-account"; # Output of `id -un`, run without sudo.
+in {
+  inherit username;
+  homeDirectory = "/Users/${username}"; # Or the actual value of $HOME.
+  system = "aarch64-darwin"; # Use x86_64-darwin for an Intel Mac.
+}
+```
+
+Nix-darwin, Home Manager and nix-homebrew all use these values. The checked-in
+defaults preserve the current `homer` / Apple Silicon setup. This selects an
+existing account; it does not rename your login account or move its home.
+The `#macbookpro` flake target is a configuration label, independent of your
+username and the Mac's hostname, so the commands above remain unchanged.
+
+Flakes use pure evaluation, so this configuration does not infer the account
+from `$USER` or `$HOME` during a sudo rebuild. Shared shell scripts use `$HOME`
+at runtime; Linux Stow deployment already targets the current user's `$HOME`.
+
+Git author details are separate from the login account. When adopting this
+repository, update `[user]` in `dotfiles/common/.config/git/config`. Remote TeX
+also has its own SSH host/account settings, described below.
 
 Home Manager uses the original `force = true` behavior for managed app settings:
 conflicting files are replaced by the repository version. Homebrew apps are
@@ -92,27 +117,33 @@ manually, with SyncTeX enabled, starting Neovim next to `main.tex`.
 
 The default SSH alias is `linux`; the remote tool is
 `/home/homer/tools/remote-tex-preview/rtp.py`. Set up your SSH keys/alias yourself.
-Mac uses Apple's `/usr/bin/ssh` to support `UseKeychain`. Machine-specific
-settings go in the unmanaged `~/.config/remote-tex-preview/config.local.json`:
+Mac uses Apple's `/usr/bin/ssh` to support `UseKeychain`.
+The watcher reads `~/.config/remote-tex-preview/config.toml` using Python 3.11+
+(provided by the Mac configuration). Machine-specific settings go in the
+unmanaged `~/.config/remote-tex-preview/config.local.toml`:
 
-```json
-{
-  "host": "your-linux-alias",
-  "remote_tool": "/home/your-user/tools/remote-tex-preview/rtp.py"
-}
+```toml
+# Override just the settings that differ on this machine.
+host = "your-linux-alias"
+remote_tool = "/home/your-user/tools/remote-tex-preview/rtp.py"
 ```
 
 Start on Mac with `remote-tex-preview` (or `texwatch` in the managed zsh).
 Use Ctrl-C to stop; `remote-tex-preview --once` checks one cycle.
+
+Configuration uses TOML only. After switching from an older installation,
+update Skim's Sync arguments to use `config.toml`, as shown below.
 
 Configure Skim Settings > Sync once: disable automatic reload, select Custom,
 set Command to the absolute result of `command -v remote-tex-preview`, and set
 Arguments to:
 
 ```text
-inverse /Users/homer/.config/remote-tex-preview/config.json "%file" %line
+inverse /absolute/path/to/your/home/.config/remote-tex-preview/config.toml "%file" %line
 ```
 
+Replace the config path above with your actual home directory (`echo "$HOME"`);
+the Skim arguments are not a shell command, so use an absolute path.
 Allow macOS Automation access when prompted. `\v` performs background forward
 search; Shift-Command-click in Skim returns to the correct local/remote Neovim.
 Mac local inverse search does not require running the watcher. If tmux keeps a
@@ -159,6 +190,25 @@ Give independently editing agents separate Git worktrees and named tmux windows.
 Keep a window for editing/review and another for tests or logs. Remote tmux keeps
 jobs running across SSH disconnects, but terminal bell alerts require an attached
 client and a live connection to reach the Mac.
+
+## Yazi Git status
+
+The shared Yazi configuration includes the official `git.yazi` plugin and its
+`package.toml` version record. The plugin files are included so both Home Manager
+and Stow deploy it without a separate download step. Restart Yazi after deployment.
+
+File status signs are `✓` (clean), `M` (unstaged changes), `S` (staged changes),
+`A` (added), `D` (deleted), `U` (conflict), `?` (untracked) and `!` (ignored).
+Directory signs summarize their contents. Press `.` to toggle hidden files.
+
+Update the vendored plugin deliberately from the repository root:
+
+```sh
+YAZI_CONFIG_HOME="$PWD/dotfiles/common/.config/yazi" ya pkg upgrade
+```
+
+Commit both the updated plugin files and `package.toml` after checking compatibility
+with the installed Yazi version.
 
 ## Other tools and layout
 

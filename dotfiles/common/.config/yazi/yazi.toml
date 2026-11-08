@@ -1,4 +1,4 @@
-[manager]
+[mgr]
 # Give the preview pane more of the terminal, which is especially useful for PDFs.
 ratio = [1, 3, 5]
 
@@ -6,3 +6,13 @@ ratio = [1, 3, 5]
 # Keep rendered PDF pages sharp when the terminal preview pane is large.
 max_width = 2000
 max_height = 2000
+
+[[plugin.prepend_fetchers]]
+url = "*"
+run = "git"
+group = "git"
+
+[[plugin.prepend_fetchers]]
+url = "*/"
+run = "git"
+group = "git"

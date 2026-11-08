@@ -1,9 +1,21 @@
 .DS_Store
 /result
+/result-*
 nvim.log
 /docs/
 /tests/
 __pycache__/
 *.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
 
-/dotfiles/common/.config/remote-tex-preview/config.local.json
+# Editor temporary files.
+*.swp
+*.swo
+*~
+
+# Per-machine overrides and configuration backups.
+/dotfiles/common/.config/remote-tex-preview/config.local.toml
+/dotfiles/common/.config/remote-tex-preview/*.bak
+/dotfiles/common/.config/remote-tex-preview/*.before-*

@@ -1,0 +1,17 @@
+[git]
+ignored_sign = "! "
+untracked_sign = "? "
+unstaged_sign = "M "
+staged_sign = "S "
+added_sign = "A "
+deleted_sign = "D "
+updated_sign = "U "
+clean_sign = "✓ "
+
+ignored = { fg = "darkgray" }
+untracked = { fg = "magenta" }
+unstaged = { fg = "yellow" }
+staged = { fg = "green" }
+added = { fg = "green" }
+deleted = { fg = "red" }
+updated = { fg = "red", bold = true }

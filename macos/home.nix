@@ -1,10 +1,11 @@
 {
   pkgs,
   lib,
+  settings,
   ...
 }: {
-  home.username = "homer";
-  home.homeDirectory = lib.mkForce "/Users/homer";
+  home.username = settings.username;
+  home.homeDirectory = lib.mkForce settings.homeDirectory;
 
   home.sessionPath = ["$HOME/.local/bin"];
   # Install dependencies here; application settings live in dotfiles/common.

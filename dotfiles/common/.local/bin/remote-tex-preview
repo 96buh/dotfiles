@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-config="${RTP_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/remote-tex-preview/config.json}"
+config="${RTP_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/remote-tex-preview/config.toml}"
 case "${1:-}" in
     '') set -- watch "$config" ;;
     --once) shift; set -- watch "$config" --once "$@" ;;

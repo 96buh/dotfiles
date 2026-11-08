@@ -1,0 +1,4 @@
+# Connection defaults. Put machine-specific changes in config.local.toml.
+host = "linux"
+remote_tool = "/home/homer/tools/remote-tex-preview/rtp.py"
+local_nvim = "nvim"

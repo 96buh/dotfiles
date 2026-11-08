@@ -237,23 +237,26 @@ def rpc(request):
     raise ValueError('Unknown operation')
 
 
+def read_config(path):
+    # Only the local watcher reads TOML; remote RPC needs no TOML parser.
+    try:
+        import tomllib
+    except ModuleNotFoundError as exc:
+        raise ValueError('TOML configuration requires Python 3.11 or newer') from exc
+    with path.open('rb') as stream:
+        return tomllib.load(stream)
+
+
 def config(path):
-    cfg = get_json(Path(path).expanduser())
-    if not isinstance(cfg, dict):
-        raise ValueError('Configuration must be a JSON object')
+    path = Path(path).expanduser()
+    cfg = read_config(path)
     cfg.setdefault('local_root', '~/Library/Caches/remote-tex-preview')
+    override_path = path.with_name('config.local.toml')
+    if override_path.exists():
+        cfg.update(read_config(override_path))
     for key in ('host', 'remote_tool', 'local_root'):
         if not isinstance(cfg.get(key), str) or not cfg[key]:
             raise ValueError('Missing configuration: ' + key)
-    override_path = Path(path).expanduser().with_name('config.local.json')
-    if override_path.exists():
-        override = get_json(override_path)
-        if not isinstance(override, dict):
-            raise ValueError('Local configuration must be a JSON object')
-        cfg.update(override)
-        for key in ('host', 'remote_tool', 'local_root'):
-            if not isinstance(cfg.get(key), str) or not cfg[key]:
-                raise ValueError('Missing configuration: ' + key)
     if cfg['host'].startswith('-'):
         raise ValueError('Invalid SSH host')
     cfg['local_root'] = str(Path(cfg['local_root']).expanduser().resolve())

@@ -1,5 +1,5 @@
 {
-  description = "Homer's macOS configuration";
+  description = "macOS configuration and shared dotfiles";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
@@ -30,14 +30,16 @@
     neovim-nightly-overlay,
     ...
   }: let
-    darwinSystem = "aarch64-darwin";
+    settings = import ./macos/settings.nix;
+    darwinSystem = settings.system;
     neovimOverlay = neovim-nightly-overlay.overlays.default;
 
     homeManagerConfig = {
       home-manager = {
         useGlobalPkgs = true;
         useUserPackages = true;
-        users.homer = import ./macos/home.nix;
+        extraSpecialArgs = {inherit settings;};
+        users.${settings.username} = import ./macos/home.nix;
       };
     };
   in {
@@ -56,12 +58,12 @@
           nix-homebrew = {
             enable = true;
             enableRosetta = true;
-            user = "homer";
+            user = settings.username;
             autoMigrate = true;
           };
         }
       ];
-      specialArgs = {inherit inputs self;};
+      specialArgs = {inherit inputs self settings;};
     };
   };
 }

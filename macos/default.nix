@@ -1,6 +1,7 @@
 {
   self,
   pkgs,
+  settings,
   ...
 }: {
   imports = [
@@ -8,8 +9,8 @@
     ./homebrew.nix
   ];
 
-  users.users.homer.home = "/Users/homer";
-  system.primaryUser = "homer";
+  users.users.${settings.username}.home = settings.homeDirectory;
+  system.primaryUser = settings.username;
   nixpkgs.config.allowUnfree = true;
   nix.settings.experimental-features = ["nix-command" "flakes"];
   system.configurationRevision = self.rev or self.dirtyRev or null;

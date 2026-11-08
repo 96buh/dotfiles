@@ -1,4 +1,8 @@
 \.gitkeep$
 (^|/)__pycache__(/|$)
 \.py[cod]$
-(^|/)config\.local\.json$
+(^|/)config\.local\.toml$
+(^|/)(\.pytest_cache|\.ruff_cache|\.venv)(/|$)
+\.(swp|swo|bak)$
+~$
+(^|/)remote-tex-preview/[^/]+\.before-[^/]+$

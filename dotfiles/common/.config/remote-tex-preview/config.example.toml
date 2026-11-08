@@ -1,0 +1,10 @@
+# Existing alias from ~/.ssh/config; the remote user may differ from the Mac user.
+host = "your-existing-ssh-alias"
+remote_tool = "/home/your-user/tools/remote-tex-preview/rtp.py"
+remote_python = "python3"
+local_nvim = "nvim"
+
+# Optional watcher and Skim settings.
+local_root = "~/Library/Caches/remote-tex-preview"
+interval = 1
+displayline = "/Applications/Skim.app/Contents/SharedSupport/displayline"
