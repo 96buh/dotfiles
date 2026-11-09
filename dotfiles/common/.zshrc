@@ -105,6 +105,7 @@ command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init --cmd cd zsh)"
 # fzf-tab must follow compinit/fzf; highlighting follows all widget definitions.
 zinit light Aloxaf/fzf-tab
 zinit light zsh-users/zsh-autosuggestions
+bindkey -M viins '^e' autosuggest-accept
 
 # Ghostty's Command-p sequence is normalized by tmux; accept both forms.
 function pdf-opener-widget() {
