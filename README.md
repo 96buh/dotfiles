@@ -21,6 +21,7 @@ let
 in {
   inherit username;
   homeDirectory = "/Users/${username}"; # Or the actual value of $HOME.
+  hostName = "macbook"; # Terminal hostname; Bonjour adds .local separately.
   system = "aarch64-darwin"; # Use x86_64-darwin for an Intel Mac.
 }
 ```
@@ -42,6 +43,13 @@ also has its own SSH host/account settings, described below.
 Home Manager uses the original `force = true` behavior for managed app settings:
 conflicting files are replaced by the repository version. Homebrew apps are
 managed by the existing nix-homebrew configuration.
+
+`macos/dotfiles.nix` automatically maps files from `dotfiles/common/` and
+`dotfiles/macos/` into the configured home directory. Mac-only files win if both
+trees contain the same path. Add new dotfiles to these trees and register new
+files with Git before building; no per-file `home.file` declarations are needed.
+Stow metadata, local TOML overrides, caches and editor backups are excluded.
+Only repository entries are managed, not entire agent state directories.
 
 ## macOS: new machine
 
@@ -124,7 +132,7 @@ stow --no-folding -R -t "$HOME" common linux
 ## Remote TeX preview
 
 Runtime code lives in `dotfiles/common/tools/remote-tex-preview/`. On Mac, all
-its deployment declarations are in `macos/home.nix`: switch creates
+its deployment is handled by `macos/dotfiles.nix`: switch creates
 `~/tools/remote-tex-preview/` with links to the Nix store. On Linux, Stow links
 the same location directly to this repository.
 
@@ -170,6 +178,37 @@ search; Shift-Command-click in Skim returns to the correct local/remote Neovim.
 Mac local inverse search does not require running the watcher. If tmux keeps a
 stale SSH environment, start Linux Neovim with `RTP_REMOTE_PREVIEW=0` for local
 preview or `RTP_REMOTE_PREVIEW=1` for remote preview.
+
+## Shared agent instructions and skills
+
+Edit `dotfiles/common/.config/agents/AGENTS.md` for personal instructions shared
+by Codex and Pi. Relative links under `.codex/` and `.pi/agent/` expose the same
+instructions at each harness's expected path. Mac Home Manager and Linux Stow
+deploy these links automatically. Project-specific `AGENTS.md` files remain
+with their own projects.
+
+The only skills managed here are `latex-expl3` and `academic-humanizer`. Their
+sources live in `dotfiles/common/.config/agents/skills/`; links under
+`.codex/skills/` and `.pi/agent/skills/` share them without maintaining copies.
+The academic-humanizer snapshot retains its upstream README, MIT license and
+support files. Other installed skills are left unmanaged and unchanged.
+
+Pi's `~/.pi/agent/settings.json` remains writable and unmanaged because Pi also
+stores model choices and device state there. Set these preferences once on each
+machine, preserving the other keys:
+
+```json
+{
+  "externalEditor": "nvim",
+  "terminal": { "showTerminalProgress": true }
+}
+```
+
+Pi also receives `/review` (read-only Git review) and `/handoff` (a concise task
+handoff) from `.pi/agent/prompts/`. Start a new Codex session after deployment;
+in Pi use `/reload` for instructions, skills and prompts. Restart Pi to ensure
+all preference changes take effect. Login credentials, sessions and the full
+Codex/Pi settings files are not managed by this repository.
 
 ## Codex completion alerts over SSH
 

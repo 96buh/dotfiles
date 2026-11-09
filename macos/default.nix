@@ -11,6 +11,7 @@
 
   users.users.${settings.username}.home = settings.homeDirectory;
   system.primaryUser = settings.username;
+  networking.hostName = settings.hostName;
   nixpkgs.config.allowUnfree = true;
   nix.settings.experimental-features = ["nix-command" "flakes"];
   system.configurationRevision = self.rev or self.dirtyRev or null;

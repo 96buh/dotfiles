@@ -1,7 +1,7 @@
 \.gitkeep$
 (^|/)__pycache__(/|$)
 \.py[cod]$
-(^|/)config\.local\.toml$
+^config\.local\.toml$
 (^|/)(\.pytest_cache|\.ruff_cache|\.venv)(/|$)
 \.(swp|swo|bak)$
 ~$

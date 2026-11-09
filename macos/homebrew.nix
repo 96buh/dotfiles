@@ -25,6 +25,8 @@
       "charmbracelet/tap/freeze"
       "librsvg"
       "leaf-markdown-viewer"
+      "herdr"
+      "pi-coding-agent"
     ];
     # GUI Apps
     casks = [
