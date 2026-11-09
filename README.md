@@ -102,6 +102,25 @@ or source `~/.zshrc` after switching to it. zinit installs its plugins on first
 interactive startup. `.gitkeep`, Python caches and local overrides are excluded
 from Stow deployment.
 
+Machine-specific shell settings can go in `~/.config/zsh/local.zsh`, which is
+loaded by the managed `.zshrc` and remains outside Stow. Linux's tmux colors
+live in `dotfiles/linux/.config/tmux/appearance.conf`; the common configuration
+loads it when present. Back up an old `~/.tmux.conf` outside the home directory's
+config search paths so it does not take precedence over `~/.config/tmux/tmux.conf`.
+
+Once linked, edits to existing repository files are visible through the links
+immediately. Reload the application to read the changes; Stow does not reload it.
+For zsh, open a new terminal or run `source ~/.zshrc`. For an existing tmux
+server, run `tmux source-file ~/.config/tmux/tmux.conf`.
+
+After adding, renaming or deleting managed files, preview and restow:
+
+```sh
+cd ~/.dotfiles/dotfiles
+stow --no-folding -n -R -t "$HOME" common linux
+stow --no-folding -R -t "$HOME" common linux
+```
+
 ## Remote TeX preview
 
 Runtime code lives in `dotfiles/common/tools/remote-tex-preview/`. On Mac, all
@@ -111,6 +130,8 @@ the same location directly to this repository.
 
 The Neovim integration is loaded from the standard user runtime under
 `~/.local/share/nvim/site/plugin/`; it does not modify your Neovim repo.
+That entry point loads `~/tools/remote-tex-preview/preview.lua`, which handles
+PDF publishing and forward search in Linux SSH sessions. Both Lua files are needed.
 Mac local sessions retain VimTeX/Skim, Linux local sessions retain Zathura, and
 SSH sessions on Linux publish successful manual builds to Mac. Save and compile
 manually, with SyncTeX enabled, starting Neovim next to `main.tex`.
@@ -223,6 +244,8 @@ prompt; override search roots in `~/.config/pdf-opener/config` using
 selects the previous window. `tmux-sessionizer` remains the session picker.
 
 Update Mac flake inputs deliberately with `nix flake update`, then build and
-switch. Linux can re-run the same Stow command after pulling changes.
-Linux deployment and preview behavior were tested in temporary directories;
-macOS build/switch and GUI behavior must be verified on Mac.
+switch. On Linux, existing links follow pulled content changes; restow when
+managed paths are added, renamed or removed, then reload affected applications.
+Linux deployment and repeat previews were verified in temporary directories and
+on this machine; tmux loaded successfully in an isolated server. macOS build/switch
+and GUI behavior must be verified on Mac.

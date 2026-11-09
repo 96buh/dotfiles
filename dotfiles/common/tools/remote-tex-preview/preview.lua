@@ -24,7 +24,7 @@ function M.setup(opts)
     return path == root or path:sub(1, #root + 1) == root .. '/'
   end
   local function is_project(state)
-    return state and vim.uv.fs_realpath(state.root) == root
+    return state and type(state.root) == 'string' and vim.uv.fs_realpath(state.root) == root
       and vim.fn.filereadable(root .. '/main.tex') == 1
   end
   local function run(args)
@@ -42,8 +42,9 @@ function M.setup(opts)
     group = group, pattern = 'VimtexEventCompileSuccess',
     callback = function()
       local state = vim.b.vimtex
-      if not is_project(state) then return end
+      if not is_project(state) or type(state.compiler) ~= 'table' then return end
       local pdf = vim.fn.eval("b:vimtex.compiler.get_file('pdf')")
+      if pdf == '' then return end
       local args = base('publish')
       vim.list_extend(args, {'--pdf', pdf})
       run(args)
@@ -53,7 +54,9 @@ function M.setup(opts)
   vim.api.nvim_create_autocmd('User', {
     group = group, pattern = 'VimtexEventInitPost',
     callback = function()
-      if not is_project(vim.b.vimtex) then return end
+      local state = vim.b.vimtex
+      -- Package/class buffers and disabled viewer modules may have no viewer.
+      if not is_project(state) or type(state.viewer) ~= 'table' then return end
       run(base('register'))
       vim.cmd('let b:vimtex.viewer.rtp_root = ' .. vim.fn.string(root))
       vim.cmd([[

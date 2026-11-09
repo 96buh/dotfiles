@@ -140,4 +140,10 @@ export MANPAGER="less -R --use-color -Dd+r -Du+b"
 export MANROFFOPT="-c"
 
 # SSH keys are loaded on demand by ~/.ssh/config (AddKeysToAgent / UseKeychain).
+
+# Keep machine-specific environment settings outside the managed dotfiles.
+if [[ -f "$HOME/.config/zsh/local.zsh" ]]; then
+  source "$HOME/.config/zsh/local.zsh"
+fi
+
 zinit light zsh-users/zsh-syntax-highlighting
