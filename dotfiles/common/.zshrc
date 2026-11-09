@@ -127,8 +127,12 @@ function y() {
 	rm -f -- "$tmp"
 }
 
+# Use English CLI messages on macOS and Linux while retaining UTF-8 support.
+export LANG=en_US.UTF-8
+export LC_MESSAGES=en_US.UTF-8
+export LANGUAGE=en_US:en
+
 if [[ $OSTYPE == darwin* ]]; then
-    export LANG=en_US.UTF-8
     path=(/Library/TeX/texbin $path)
 fi
 # Respect a custom GOPATH; otherwise Go uses ~/go. Avoid spawning go each time.
