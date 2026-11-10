@@ -6,6 +6,7 @@
 - Use clear, simple, and concise language.
 - Be direct and avoid unnecessary explanations or repetition.
 - Keep technical terms, code, and identifiers in English.
+- Never use the em dash character (U+2014); use a plain hyphen (-) instead.
 - Write formal reports, academic writing, and technical reports in English unless otherwise specified.
 - Use Traditional Chinese when discussing or explaining reports to the user.
 
@@ -26,6 +27,8 @@
 - Use the project's existing type checker; consider Pyrefly for new projects without one.
 - Avoid `Any`, type suppressions, and unnecessary casts unless justified.
 - Follow existing project formatting and linting configurations.
+- Use the project's existing Python test framework; prefer pytest for new projects without one.
+- Run tests through the project's environment, such as `uv run pytest`.
 
 ## Verification
 
