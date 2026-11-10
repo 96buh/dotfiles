@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+stow_args=(--no-folding --restow --verbose --dir "$repo_dir/dotfiles" --target "$HOME")
+merge_args=(--source "$repo_dir/dotfiles/settings/codex.toml")
+if [[ "${1:-}" == "--check" && $# == 1 ]]; then
+  stow_args+=(--simulate)
+elif [[ $# != 0 ]]; then
+  echo "Usage: $0 [--check]" >&2
+  exit 2
+fi
+
+command -v uv >/dev/null || { echo "Install uv before deploying." >&2; exit 1; }
+command -v stow >/dev/null || { echo "Install GNU Stow before deploying." >&2; exit 1; }
+# Check TOML and prepare the Python dependency before changing home links.
+uv run --no-project --script "$repo_dir/scripts/apply-codex-settings.py" "${merge_args[@]}" --check
+stow "${stow_args[@]}" common linux
+if [[ $# == 0 ]]; then
+  uv run --no-project --script "$repo_dir/scripts/apply-codex-settings.py" "${merge_args[@]}"
+fi

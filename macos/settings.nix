@@ -8,6 +8,10 @@ in {
   homeDirectory = "/Users/${username}";
   # Terminal/SSH host name; Bonjour uses macbook.local on the local network.
   hostName = "macbook";
+  git = {
+    name = "Homer";
+    email = "j29823678@gmail.com";
+  };
   # Apple Silicon: aarch64-darwin; Intel: x86_64-darwin.
   system = "aarch64-darwin";
 }

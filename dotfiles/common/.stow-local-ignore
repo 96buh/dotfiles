@@ -1,8 +1,15 @@
-\.gitkeep$
-(^|/)__pycache__(/|$)
-\.py[cod]$
-^config\.local\.toml$
-(^|/)(\.pytest_cache|\.ruff_cache|\.venv)(/|$)
-\.(swp|swo|bak)$
-~$
-(^|/)remote-tex-preview/[^/]+\.before-[^/]+$
+# Match basenames: patterns containing / use Stow's full-path matching.
+^\.(git|gitkeep|DS_Store)$
+^(__pycache__|\.pytest_cache|\.ruff_cache|\.mypy_cache|\.cache|\.venv|\.direnv|node_modules|htmlcov)$
+.*\.py[cod]$
+^config\.local(\..*)?$
+^(local\.zsh|auth\.json|coverage\.xml)$
+^\.coverage(\..*)?$
+^\.env$
+^\.env\.(?!(example|sample|template)$).*$
+# Full package-relative paths for writable agent state.
+^/\.codex/(config\.toml|history\.jsonl|sessions|backups)(/.*)?$
+^/\.pi/agent/(settings\.json|sessions)(/.*)?$
+.*\.(swp|swo|bak)$
+.*~$
+.*\.before-.*

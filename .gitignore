@@ -9,13 +9,40 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 .venv/
+.mypy_cache/
+.cache/
+.direnv/
+node_modules/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Local environment secrets; keep templates available.
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
 
 # Editor temporary files.
 *.swp
 *.swo
+*.bak
+*.before-*
 *~
 
 # Per-machine overrides and configuration backups.
-/dotfiles/common/.config/remote-tex-preview/config.local.toml
-/dotfiles/common/.config/remote-tex-preview/*.bak
-/dotfiles/common/.config/remote-tex-preview/*.before-*
+config.local
+config.local.*
+/dotfiles/common/.config/zsh/local.zsh
+
+# Agent runtime state belongs on each machine, outside version control.
+/dotfiles/common/.codex/config.toml
+/dotfiles/common/.codex/auth.json
+/dotfiles/common/.codex/history.jsonl
+/dotfiles/common/.codex/sessions/
+/dotfiles/common/.codex/backups/
+/dotfiles/common/.pi/agent/settings.json
+/dotfiles/common/.pi/agent/auth.json
+/dotfiles/common/.pi/agent/sessions/

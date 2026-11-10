@@ -40,7 +40,8 @@
       show-recents = false;
       orientation = "bottom";
       # Hot corner action
-      wvous-bl-corner = 4; # bottom left: Desktop
+      # bl(bottom left): Desktop
+      wvous-bl-corner = 4;
     };
     finder = {
       AppleShowAllExtensions = true;
