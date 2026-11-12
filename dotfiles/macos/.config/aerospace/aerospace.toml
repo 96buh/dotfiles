@@ -11,7 +11,7 @@ on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 automatically-unhide-macos-hidden-apps = false
 
 # This config option is only available since 'config-version = 2'
-persistent-workspaces = ['ZEN', 'GHOSTTY', 'OBSIDIAN', 'CODE', 'DISCORD', 'SPOTIFY', 'FINDER', 'PREVIEW', 'ZOTERO', 'ANKI', 'VPN', 'MAIL']
+persistent-workspaces = ['ZEN', 'GHOSTTY', 'OBSIDIAN', 'CODE', 'DISCORD', 'SPOTIFY', 'FINDER', 'PREVIEW', 'ZOTERO', 'ANKI', 'VPN', 'MAIL', 'GPT']
 
 [key-mapping]
     preset = 'qwerty'
@@ -47,7 +47,7 @@ persistent-workspaces = ['ZEN', 'GHOSTTY', 'OBSIDIAN', 'CODE', 'DISCORD', 'SPOTI
     alt-4 = 'workspace CODE'
     alt-5 = 'workspace DISCORD'
     alt-6 = 'workspace SPOTIFY'
-    alt-7 = 'workspace 7'
+    alt-7 = 'workspace GPT'
     alt-8 = 'workspace 8'
     alt-9 = 'workspace 9'
     alt-o = 'workspace ZOTERO'
@@ -63,7 +63,7 @@ persistent-workspaces = ['ZEN', 'GHOSTTY', 'OBSIDIAN', 'CODE', 'DISCORD', 'SPOTI
     alt-shift-4 = 'move-node-to-workspace CODE'
     alt-shift-5 = 'move-node-to-workspace DISCORD'
     alt-shift-6 = 'move-node-to-workspace SPOTIFY'
-    alt-shift-7 = 'move-node-to-workspace 7'
+    alt-shift-7 = 'move-node-to-workspace GPT'
     alt-shift-8 = 'move-node-to-workspace 8'
     alt-shift-9 = 'move-node-to-workspace 9'
     alt-shift-o = 'move-node-to-workspace ZOTERO'
@@ -125,3 +125,7 @@ run = 'move-node-to-workspace VPN'
 [[on-window-detected]]
 if.app-id = 'net.ankiweb.launcher'
 run = 'move-node-to-workspace ANKI'
+
+[[on-window-detected]]
+if.app-id = 'com.openai.codex'
+run = 'move-node-to-workspace GPT'

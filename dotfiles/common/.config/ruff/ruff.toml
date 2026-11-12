@@ -29,6 +29,7 @@ ignore = [
     "D105",  # Missing magic method docstring
     "D106",  # Missing nested class docstring
     "D107",  # Missing __init__ docstring
+    "F821",
 ]
 
 [lint.pydocstyle]

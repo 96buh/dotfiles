@@ -51,6 +51,7 @@
       "figma"
       "inkscape"
       "iina"
+      "opensuperwhisper"
     ];
     onActivation = {
       autoUpdate = false;

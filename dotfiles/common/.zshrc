@@ -128,6 +128,12 @@ function y() {
 	rm -f -- "$tmp"
 }
 
+for _f in ${HOME}/.config/herdr/plugins/github-installations/herdr-automatic-rename-*/*/checkout/shell/hook.zsh(N) \
+          ${HOME}/.config/herdr/plugins/github/herdr-automatic-rename-*/shell/hook.zsh(N); do
+  source "$_f"
+  break
+done
+
 # Use English CLI messages on macOS and Linux while retaining UTF-8 support.
 export LANG=en_US.UTF-8
 export LC_MESSAGES=en_US.UTF-8
