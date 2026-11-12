@@ -1,92 +1,57 @@
 ---
 name: latex-expl3
-description: Use this skill when writing or refactoring LaTeX packages, classes, themes, reusable macros, key-value interfaces, or complex LaTeX command logic. Do not use it for ordinary document text or simple one-off LaTeX snippets.
+description: Write, refactor, and debug LaTeX packages, classes, themes, reusable macros, and key-value interfaces using expl3. Use for nontrivial macro logic, expansion, and state management; not ordinary document prose, equations, or simple one-off snippets.
 ---
 
-# LaTeX expl3 Skill
+# LaTeX expl3
 
-When helping with LaTeX package/class/theme development, prefer modern LaTeX3 `expl3` style for internal implementation.
+Prefer expl3 for substantial internal logic. Preserve existing public APIs,
+supported engines, and minimum LaTeX versions unless a change is requested.
+Keep ordinary document markup and simple wrappers in familiar LaTeX syntax.
 
-Use `expl3` especially for:
+## Before editing
 
-- package or class internals
-- reusable macro systems
-- key-value options
-- conditional logic
-- token list, sequence, clist, prop, int, bool, dim, skip variables
-- robust wrapper commands
-- Beamer themes, document classes, style files, and tcolorbox abstractions
+- Identify the source of truth: edit `.dtx` sources rather than generated
+  `.sty` or `.cls` files when the project uses docstrip.
+- Inspect the module prefix, public commands, option processing, load order,
+  grouping, and existing build commands before selecting an implementation.
+- For bugs, reproduce the user's document failure with the actual engine and
+  relevant packages, reducing it only enough to isolate the cause.
 
-Do not force `expl3` for:
+## Implementation rules
 
-- normal LaTeX document content
-- simple equations
-- simple figure/table snippets
-- short one-off macros where LaTeX2e is clearer
+- Use a consistent module prefix. Private helpers use `\__module_action:n`;
+  owned variables use names such as `\l__module_title_tl` and
+  `\g__module_registry_prop`. Declare variables once, outside repeated calls.
+- Use `\ExplSyntaxOn` / `\ExplSyntaxOff` where needed. Ordinary spaces are
+  ignored under expl3 syntax; do not silently change text or key names.
+- Separate public commands from helpers. Use `\NewDocumentCommand` for new
+  public interfaces; renew an existing command only intentionally.
+- Choose `\cs_new:Npn` for expandable computation and
+  `\cs_new_protected:Npn` for assignments, typesetting, or other side effects.
+  Do not promise expandability merely because a function is short.
+- Match argument signatures and expansion to actual inputs. Read
+  [implementation.md](references/implementation.md) when manipulating token
+  lists, generating variants, defining keys, or changing state and grouping.
+- Prefer typed expl3 data structures and `l3keys` over ad-hoc parsing.
+  Use documented interfaces of dependencies, not another module's internals.
+- Preserve user tokens unless the API explicitly expands them. Make local
+  versus persistent state intentional, especially with repeated or nested calls.
 
-## Style rules
+## Verification and delivery
 
-Use:
+Follow [validation.md](references/validation.md) for compiler checks, regression
+cases, and when to use l3build. Verify behavior, not just successful compilation.
+For visual changes, inspect the resulting PDF using available rendering tools.
 
-```tex
-\ExplSyntaxOn
-...
-\ExplSyntaxOff
-```
+Report public-interface changes, engine/version assumptions, commands actually
+run, and remaining limitations. Do not install a TeX distribution, enable shell
+escape, or regenerate reference outputs merely to make a check pass.
 
-Prefer `\NewDocumentCommand`, `\RenewDocumentCommand`, and `\ProvideDocumentCommand` for user-facing commands.
+## Authoritative references
 
-Separate public commands from internal implementation:
-
-```tex
-\NewDocumentCommand \MyCommand { m }
-  {
-    \mytheme_do_something:n { #1 }
-  }
-
-\cs_new_protected:Npn \mytheme_do_something:n #1
-  {
-    ...
-  }
-```
-
-Use a clear module prefix, such as:
-
-```tex
-mytheme_
-mystyle_
-myclass_
-```
-
-Use proper variable naming:
-
-```tex
-\tl_new:N   \l_mytheme_title_tl
-\seq_new:N  \l_mytheme_items_seq
-\bool_new:N \l_mytheme_enabled_bool
-\dim_new:N  \l_mytheme_margin_dim
-\prop_new:N \l_mytheme_color_prop
-```
-
-For key-value options, prefer `l3keys`:
-
-```tex
-\keys_define:nn { mytheme }
-  {
-    title .tl_set:N = \l_mytheme_title_tl,
-    enabled .bool_set:N = \l_mytheme_enabled_bool,
-    margin .dim_set:N = \l_mytheme_margin_dim,
-  }
-```
-
-For package/class options, prefer a maintainable key-value interface instead of many ad-hoc booleans.
-
-## Output expectations
-
-When generating LaTeX package/class code:
-
-1. Use `expl3` for internal logic.
-2. Keep user-facing commands LaTeX-friendly.
-3. Add short comments only where they clarify structure.
-4. Avoid overly clever low-level TeX unless necessary.
-5. Prefer maintainability over extreme compactness.
+Use `texdoc interface3` for installed expl3 APIs and `texdoc clsguide` for
+package/class interfaces. If local documentation is unavailable, consult the
+[LaTeX documentation index](https://www.latex-project.org/help/documentation/)
+and [l3kernel interface manual](https://mirrors.ctan.org/macros/latex/required/l3kernel/interface3.pdf).
+Verify unfamiliar variants and engine restrictions rather than inventing APIs.

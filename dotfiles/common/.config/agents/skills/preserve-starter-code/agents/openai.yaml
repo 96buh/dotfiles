@@ -1,0 +1,11 @@
+interface:
+  display_name: "保留 Starter 的作業開發"
+  short_description: "保護原始程式、維持清楚的作業結構，將精簡可復現的繳交檔放入 submissions/"
+  default_prompt: "使用 $preserve-starter-code 處理這份作業，全程保持 starting code 不變並維持清楚結構；準備繳交時，只將必要文件與可復現程式封裝到 submissions/。"
+policy:
+  products:
+    - "chatgpt"
+    - "codex"
+    - "api"
+    - "atlas"
+  allow_implicit_invocation: true

@@ -7,6 +7,7 @@
 - Be direct and avoid unnecessary explanations or repetition.
 - Keep technical terms, code, and identifiers in English.
 - Never use the em dash character (U+2014); use a plain hyphen (-) instead.
+- Use ASCII parentheses `(` and `)` in both Chinese and English; never use fullwidth parentheses (U+FF08 and U+FF09).
 - Write formal reports, academic writing, and technical reports in English unless otherwise specified.
 - Use Traditional Chinese when discussing or explaining reports to the user.
 
@@ -21,14 +22,14 @@
 
 ## Python
 
-- Prefer `uv` for new Python projects; preserve the environment and dependency tools used by existing projects.
-- Use type hints for all function parameters and return values.
-- Prefer modern Python typing syntax compatible with the project's Python version.
-- Use the project's existing type checker; consider Pyrefly for new projects without one.
-- Avoid `Any`, type suppressions, and unnecessary casts unless justified.
-- Follow existing project formatting and linting configurations.
-- Use the project's existing Python test framework; prefer pytest for new projects without one.
-- Run tests through the project's environment, such as `uv run pytest`.
+- For new Python projects, default to `uv` for environments and dependencies, Ruff for linting and formatting, and pytest for tests unless instructed otherwise.
+- Preserve existing project tooling, supported Python versions, and configuration. Do not migrate tools or add dependencies solely to match these defaults.
+- Annotate all new or modified function parameters and return values, including `-> None` where appropriate. Avoid unrelated annotation-only changes.
+- Use modern typing syntax supported by the project's Python version. Avoid `Any`, type suppressions, and unnecessary casts unless justified.
+- Use the project's existing type checker; consider Pyrefly for new projects without one. Ruff and pytest do not replace type checking.
+- Keep tool configuration in `pyproject.toml` when practical, respecting existing configuration files. Keep test, lint, and type-check dependencies out of runtime dependencies.
+- Test observable behavior and relevant edge cases. For bug fixes, reproduce the failure first and add a regression test when appropriate; avoid tests that merely mirror implementation details.
+- Run tools through the project environment. For projects using these defaults, use `uv run ruff check .`, `uv run ruff format --check .`, and `uv run pytest`, plus the configured type-check command. Follow existing project commands when they differ.
 
 ## Verification
 

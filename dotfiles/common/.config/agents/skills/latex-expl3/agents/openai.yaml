@@ -1,0 +1,3 @@
+interface:
+  display_name: "LaTeX expl3"
+  short_description: "Develop and debug LaTeX packages with expl3"
