@@ -32,12 +32,16 @@
   ];
 
   home.stateVersion = "24.11";
-  # Keep Codex's config writable; merge only our explicit preferences.
-  home.activation.codexSettings = lib.hm.dag.entryAfter ["writeBoundary"] ''
+  # Agent settings remain writable; merge only our explicit preferences.
+  home.activation.agentSettings = lib.hm.dag.entryAfter ["writeBoundary"] ''
     run ${(pkgs.python3.withPackages (ps: [ps.tomlkit]))}/bin/python3 \
-      ${../scripts/apply-codex-settings.py} \
+      ${../scripts/apply-agent-settings.py} \
       --source ${../dotfiles/settings/codex.toml} \
       --target ${lib.escapeShellArg "${settings.homeDirectory}/.codex/config.toml"}
+    run ${(pkgs.python3.withPackages (ps: [ps.tomlkit]))}/bin/python3 \
+      ${../scripts/apply-agent-settings.py} \
+      --source ${../dotfiles/settings/pi.json} \
+      --target ${lib.escapeShellArg "${settings.homeDirectory}/.pi/agent/settings.json"}
   '';
   # Let home Manager install and manage itself.
   programs.home-manager.enable = true;

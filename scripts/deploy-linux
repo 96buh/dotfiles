@@ -3,7 +3,6 @@ set -euo pipefail
 
 repo_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 stow_args=(--no-folding --restow --verbose --dir "$repo_dir/dotfiles" --target "$HOME")
-merge_args=(--source "$repo_dir/dotfiles/settings/codex.toml")
 if [[ "${1:-}" == "--check" && $# == 1 ]]; then
   stow_args+=(--simulate)
 elif [[ $# != 0 ]]; then
@@ -13,9 +12,18 @@ fi
 
 command -v uv >/dev/null || { echo "Install uv before deploying." >&2; exit 1; }
 command -v stow >/dev/null || { echo "Install GNU Stow before deploying." >&2; exit 1; }
-# Check TOML and prepare the Python dependency before changing home links.
-uv run --no-project --script "$repo_dir/scripts/apply-codex-settings.py" "${merge_args[@]}" --check
+apply_settings() {
+  uv run --no-project --script "$repo_dir/scripts/apply-agent-settings.py" \
+    --source "$repo_dir/dotfiles/settings/codex.toml" \
+    --target "${CODEX_HOME:-$HOME/.codex}/config.toml" "$@"
+  uv run --no-project --script "$repo_dir/scripts/apply-agent-settings.py" \
+    --source "$repo_dir/dotfiles/settings/pi.json" \
+    --target "${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}/settings.json" "$@"
+}
+
+# Validate both configs and prepare dependencies before changing home links.
+apply_settings --check
 stow "${stow_args[@]}" common linux
 if [[ $# == 0 ]]; then
-  uv run --no-project --script "$repo_dir/scripts/apply-codex-settings.py" "${merge_args[@]}"
+  apply_settings
 fi

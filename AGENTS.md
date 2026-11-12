@@ -18,7 +18,7 @@ sudo darwin-rebuild build --flake .#macbookpro
 ./scripts/deploy-linux --check
 ```
 
-The first builds the macOS configuration without activation; the second previews Linux links and validates Codex preferences. Activate deliberately with `sudo darwin-rebuild switch --flake .#macbookpro` or `./scripts/deploy-linux`.
+The first builds the macOS configuration without activation; the second previews Linux links and validates Codex/Pi preferences. Activate deliberately with `sudo darwin-rebuild switch --flake .#macbookpro` or `./scripts/deploy-linux`.
 
 Register new source files with Git before building: Git-backed flakes omit untracked files. Neovim configuration is maintained in a separate repository.
 
@@ -27,7 +27,7 @@ Register new source files with Git before building: Git-backed flakes omit untra
 Follow nearby conventions: two-space Nix indentation, four-space Python indentation, and quoted Bash expansions. Use Python type hints and prefer `uv` for script dependencies. Check Python with:
 
 ```sh
-ruff check scripts/apply-codex-settings.py --config dotfiles/common/.config/ruff/ruff.toml
+ruff check scripts/apply-agent-settings.py --config dotfiles/common/.config/ruff/ruff.toml
 bash -n scripts/deploy-linux
 ```
 
@@ -45,4 +45,4 @@ Prefer Conventional Commits with concise English imperative subjects, such as `f
 
 ## Configuration Safety
 
-Never commit credentials or machine-local overrides. Keep Codex's runtime config writable; edit `dotfiles/settings/codex.toml` for managed preferences. Back up conflicting home files rather than using Stow `--adopt`. Preserve unrelated user changes and obtain explicit authorization before committing or pushing.
+Never commit credentials or machine-local overrides. Keep agent runtime settings writable; edit `dotfiles/settings/codex.toml` or `pi.json` for managed preferences. Back up conflicting home files rather than using Stow `--adopt`. Preserve unrelated user changes and obtain explicit authorization before committing or pushing.

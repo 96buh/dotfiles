@@ -36,10 +36,20 @@ git config --file ~/.config/git/config.local user.name 'Your Name'
 git config --file ~/.config/git/config.local user.email 'you@example.com'
 ```
 
+If Pi is installed, run `pi update --extensions` after deployment to install the
+shared package list, then start Pi and sign in with `/login` as needed. The
+managed `packages` list replaces the local list; credentials stay on each machine.
+If using Herdr, install its plugins once:
+
+```sh
+herdr plugin install beyondlex/herdr-recent-navigator
+herdr plugin install qu8n/herdr-automatic-rename
+```
+
 ## Editing
 
 - Home files: `dotfiles/common/`, with platform files in `dotfiles/macos/` and `dotfiles/linux/`.
-- Codex preferences: `dotfiles/settings/codex.toml`; deployment merges them into a writable config and backs up changes.
+- Agent preferences: `dotfiles/settings/codex.toml` and `pi.json`; deployment merges them into writable configs and backs up changes.
 - Shared Codex/Pi instructions and skills: `dotfiles/common/.config/agents/`.
 - Machine-local shell options: `~/.config/zsh/local.zsh` (unmanaged).
 

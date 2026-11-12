@@ -1,0 +1,10 @@
+{
+  "quietStartup": "header",
+  "collapseChangelog": true,
+  "packages": [
+    "npm:@laboon85/pi-arxiv",
+    "npm:pi-observational-memory",
+    "npm:pi-web-access",
+    "npm:pi-subagents"
+  ]
+}

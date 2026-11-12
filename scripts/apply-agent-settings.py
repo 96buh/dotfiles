@@ -3,11 +3,12 @@
 # requires-python = ">=3.11"
 # dependencies = ["tomlkit==0.13.3"]
 # ///
-"""Merge repository preferences into a writable Codex config."""
+"""Merge TOML or JSON preferences into writable agent settings."""
 
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import tempfile
 from datetime import UTC, datetime
@@ -19,13 +20,16 @@ from tomlkit.items import InlineTable, Table
 from tomlkit.toml_document import TOMLDocument
 
 
-def merge(target: TOMLDocument | Table | InlineTable, source: TOMLDocument | Table | InlineTable) -> None:
+def merge(
+    target: TOMLDocument | Table | InlineTable | dict[str, object],
+    source: TOMLDocument | Table | InlineTable | dict[str, object],
+) -> None:
     """Override supplied keys recursively; replace arrays instead of appending."""
     for key, value in source.items():
-        if isinstance(value, (Table, InlineTable)):
+        if isinstance(value, (Table, InlineTable, dict)):
             child = target.get(key)
-            if not isinstance(child, (Table, InlineTable)):
-                child = tomlkit.table()
+            if not isinstance(child, (Table, InlineTable, dict)):
+                child = {} if isinstance(value, dict) else tomlkit.table()
                 target[key] = child
             merge(child, value)
         else:
@@ -34,13 +38,22 @@ def merge(target: TOMLDocument | Table | InlineTable, source: TOMLDocument | Tab
 
 def apply(source: Path, target: Path, *, check: bool = False) -> bool:
     """Preserve unmentioned settings, backing up changes before atomic replace."""
-    preferences = tomlkit.parse(source.read_text())
     if target.is_symlink():
         raise ValueError(f"{target} is a symlink; move it aside before merging")
     before = target.read_bytes() if target.exists() else None
-    document = tomlkit.parse(before.decode() if before is not None else "")
+    if source.suffix == ".json":
+        preferences = json.loads(source.read_text())
+        document = json.loads(before if before is not None else "{}")
+        if not isinstance(preferences, dict) or not isinstance(document, dict):
+            raise ValueError("JSON settings must contain objects at the top level")
+    else:
+        preferences = tomlkit.parse(source.read_text())
+        document = tomlkit.parse(before.decode() if before is not None else "")
     merge(document, preferences)
-    after = tomlkit.dumps(document).encode()
+    if source.suffix == ".json":
+        after = (json.dumps(document, indent=2, ensure_ascii=False) + "\n").encode()
+    else:
+        after = tomlkit.dumps(document).encode()
     if before == after:
         print(f"Unchanged: {target}")
         return False
@@ -64,7 +77,7 @@ def apply(source: Path, target: Path, *, check: bool = False) -> bool:
             backup_dir = target.parent / "backups"
             backup_dir.mkdir(mode=0o700, exist_ok=True)
             stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S.%fZ")
-            backup = backup_dir / f"config.toml.{stamp}"
+            backup = backup_dir / f"{target.name}.{stamp}"
             with backup.open("xb") as stream:
                 os.chmod(backup, 0o600)
                 stream.write(before)
@@ -80,20 +93,16 @@ def apply(source: Path, target: Path, *, check: bool = False) -> bool:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source", type=Path, required=True)
-    parser.add_argument(
-        "--target",
-        type=Path,
-        default=Path(os.environ.get("CODEX_HOME", str(Path.home() / ".codex"))) / "config.toml",
-    )
+    parser.add_argument("--target", type=Path, required=True)
     parser.add_argument("--check", action="store_true", help="Preview without writing")
     args = parser.parse_args()
     try:
         apply(args.source, args.target, check=args.check)
-    except ParseError:
+    except (ParseError, json.JSONDecodeError):
         # Parser errors may quote private config values; do not print their text.
-        parser.exit(1, f"Invalid TOML in {args.source} or {args.target}; no config replaced.\n")
+        parser.exit(1, f"Invalid settings in {args.source} or {args.target}; no config replaced.\n")
     except (OSError, ValueError, RuntimeError) as error:
-        parser.exit(1, f"Codex settings merge failed: {error}\n")
+        parser.exit(1, f"Agent settings merge failed: {error}\n")
 
 
 if __name__ == "__main__":
